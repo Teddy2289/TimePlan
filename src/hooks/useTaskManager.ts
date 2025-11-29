@@ -102,7 +102,165 @@ const initialTasks: Task[] = [
     updatedAt: new Date(),
   },
 ];
+const additionalMockTasks: Task[] = [
+  // Tâches pour "en-attente"
+  {
+    id: "7",
+    title: "Réunion de planification sprint",
+    description: "Préparer l'ordre du jour pour le sprint suivant",
+    status: "en-attente",
+    priority: "normale",
+    tags: ["réunion", "planification"],
+    subtasks: [],
+    comments: 2,
+    attachments: 1,
+    assignee: "MB",
+    createdAt: new Date('2024-01-15'),
+    updatedAt: new Date('2024-01-15'),
+  },
+  {
+    id: "8",
+    title: "Refactorisation du module d'authentification",
+    description: "Optimiser les performances et la sécurité",
+    status: "en-attente",
+    priority: "elevee",
+    tags: ["refactor", "sécurité"],
+    subtasks: [
+      {
+        id: "8-1",
+        title: "Analyser le code existant",
+        completed: true,
+      },
+      {
+        id: "8-2",
+        title: "Identifier les points d'amélioration",
+        completed: false,
+      }
+    ],
+    comments: 5,
+    attachments: 3,
+    assignee: "AL",
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-01-14'),
+  },
 
+  // Tâches pour "ouvert"
+  {
+    id: "9",
+    title: "Design system - Composants base",
+    description: "Créer les composants fondamentaux du design system",
+    status: "ouvert",
+    priority: "normale",
+    tags: ["design", "composants"],
+    subtasks: [],
+    comments: 3,
+    attachments: 2,
+    assignee: "RG",
+    createdAt: new Date('2024-01-12'),
+    updatedAt: new Date('2024-01-16'),
+  },
+  {
+    id: "10",
+    title: "API - Endpoints utilisateurs",
+    description: "Développer les endpoints CRUD pour la gestion des utilisateurs",
+    status: "ouvert",
+    priority: "normale",
+    tags: ["API", "backend"],
+    subtasks: [],
+    comments: 1,
+    attachments: 0,
+    assignee: "TP",
+    createdAt: new Date('2024-01-13'),
+    updatedAt: new Date('2024-01-13'),
+  },
+
+  // Tâches pour "en-cours"
+  {
+    id: "11",
+    title: "Intégration page dashboard",
+    description: "Intégrer la maquette Figma du dashboard",
+    status: "en-cours",
+    priority: "urgente",
+    tags: ["intégration", "frontend"],
+    subtasks: [
+      {
+        id: "11-1",
+        title: "Structure HTML",
+        completed: true,
+      },
+      {
+        id: "11-2",
+        title: "Styles CSS",
+        completed: true,
+      },
+      {
+        id: "11-3",
+        title: "Interactivité JavaScript",
+        completed: false,
+      }
+    ],
+    comments: 8,
+    attachments: 4,
+    assignee: "KL",
+    createdAt: new Date('2024-01-08'),
+    updatedAt: new Date('2024-01-16'),
+  },
+  {
+    id: "12",
+    title: "Tests unitaires module paiement",
+    description: "Écrire les tests pour le module de traitement des paiements",
+    status: "en-cours",
+    priority: "elevee",
+    tags: ["tests", "qualité"],
+    subtasks: [],
+    comments: 2,
+    attachments: 1,
+    assignee: "JD",
+    createdAt: new Date('2024-01-14'),
+    updatedAt: new Date('2024-01-16'),
+  },
+
+  // Tâches pour "termine"
+  {
+    id: "13",
+    title: "Documentation API REST",
+    description: "Rédiger la documentation complète des endpoints",
+    status: "termine",
+    priority: "normale",
+    tags: ["documentation", "API"],
+    subtasks: [],
+    comments: 0,
+    attachments: 1,
+    assignee: "MB",
+    createdAt: new Date('2024-01-05'),
+    updatedAt: new Date('2024-01-12'),
+  },
+  {
+    id: "14",
+    title: "Setup environnement de développement",
+    description: "Configurer l'environnement pour les nouveaux développeurs",
+    status: "termine",
+    priority: "normale",
+    tags: ["devops", "configuration"],
+    subtasks: [
+      {
+        id: "14-1",
+        title: "Docker configuration",
+        completed: true,
+      },
+      {
+        id: "14-2",
+        title: "Scripts d'installation",
+        completed: true,
+      }
+    ],
+    comments: 4,
+    attachments: 5,
+    assignee: "AL",
+    createdAt: new Date('2024-01-03'),
+    updatedAt: new Date('2024-01-10'),
+  }
+];
 export const useTaskManager = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [columns, setColumns] = useState<StatusColumn[]>(initialColumns);
@@ -122,24 +280,19 @@ export const useTaskManager = () => {
           }));
           setTasks((prevTasks) => [...prevTasks, ...tasksToUpdate]);
         } else {
-          setTasks(initialTasks);
+          // Charger les données initiales + mock supplémentaires
+          setTasks([...initialTasks, ...additionalMockTasks]);
         }
       } catch (error) {
         console.error("Error loading from localStorage:", error);
-        setTasks(initialTasks);
+        setTasks([...initialTasks, ...additionalMockTasks]);
       }
     };
 
     loadTasks();
   }, []);
 
-  // Sauvegarder dans le localStorage à chaque changement
-  useEffect(() => {
-    const state: AppState = { tasks, columns };
-    localStorage.setItem("taskManagerState", JSON.stringify(state));
-  }, [tasks, columns]);
-
-  // Mettre à jour le statut d'une tâche (drag & drop)
+  // Le reste de votre code reste identique...
   const updateTaskStatus = (taskId: string, newStatus: Task["status"]) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
@@ -154,12 +307,7 @@ export const useTaskManager = () => {
     );
   };
 
-  // Déplacer une tâche (réorganisation dans la même colonne)
-  const moveTask = (
-    taskId: string,
-    newIndex: number,
-    status: Task["status"]
-  ) => {
+  const moveTask = (taskId: string, newIndex: number, status: Task["status"]) => {
     setTasks((prevTasks) => {
       const tasksInStatus = prevTasks.filter((task) => task.status === status);
       const otherTasks = prevTasks.filter((task) => task.status !== status);
@@ -178,7 +326,6 @@ export const useTaskManager = () => {
     });
   };
 
-  // Ajouter une nouvelle tâche
   const addTask = (title: string, status: Task["status"] = "en-attente") => {
     const newTask: Task = {
       id: Date.now().toString(),
@@ -190,7 +337,7 @@ export const useTaskManager = () => {
       subtasks: [],
       comments: 0,
       attachments: 0,
-      assignee: "US", // Utilisateur par défaut
+      assignee: "US",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -199,7 +346,6 @@ export const useTaskManager = () => {
     return newTask;
   };
 
-  // Mettre à jour une tâche
   const updateTask = (taskId: string, updates: Partial<Task>) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
@@ -210,12 +356,10 @@ export const useTaskManager = () => {
     );
   };
 
-  // Supprimer une tâche
   const deleteTask = (taskId: string) => {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
   };
 
-  // Obtenir les tâches par statut
   const getTasksByStatus = (status: Task["status"]) => {
     return tasks.filter((task) => task.status === status);
   };

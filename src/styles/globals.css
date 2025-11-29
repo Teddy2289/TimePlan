@@ -23,6 +23,8 @@
   --color-white: #ffffff;
 }
 
+
+
 @layer components {
   * {
     margin: 0;
@@ -31,6 +33,23 @@
     font-optical-sizing: auto;
     font-style: normal;
   }
+
+  /* Dans votre CSS global */
+.drag-prevent-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Pour les éléments interactifs à l'intérieur des cartes */
+.drag-prevent-select button,
+.drag-prevent-select div[role="button"] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
   .btn-primary {
     background-color: var(--color-primary);

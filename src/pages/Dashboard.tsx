@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
 import DndContainer from "../components/tasks/DndContainer";
-import TaskView from "../components/tasks/TaskView";
 
 import { DndProvider } from "../context/DndContext";
 import { useTasks } from "../hooks/useTasks";
@@ -58,13 +57,16 @@ const Dashboard: React.FC = () => {
       id: `temp-${Date.now()}`,
       title: "",
       description: "",
-      status: "todo",
-      priority: "medium",
-      dueDate: null,
+      status: "en-attente",
+      priority: "normale",
+      dueDate: undefined,
       tags: [],
-      assignee: null,
+      assignee: "",
       createdAt: new Date(),
       updatedAt: new Date(),
+      subtasks: [],
+      comments: 0,
+      attachments: 0
     };
     setSelectedTask(newTask);
     setIsTaskViewOpen(true);
@@ -188,15 +190,7 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Modal de visualisation/édition de tâche */}
-          {selectedTask && (
-            <TaskView
-              task={selectedTask}
-              isOpen={isTaskViewOpen}
-              onClose={handleCloseTaskView}
-              onTaskUpdate={handleTaskUpdate}
-              mode={selectedTask.id.startsWith("temp-") ? "create" : "edit"}
-            />
-          )}
+          
         </div>
       </DndProvider>
     </MainLayout>

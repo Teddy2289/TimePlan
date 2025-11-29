@@ -60,7 +60,7 @@ export default function Projects() {
               Les signets facilitent l’enregistrement d’éléments ClickUp ou
               d’URL du web.
             </p>
-            <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-lg shadow">
+            <button className="px-4 py-2 bg-[#ab2283] hover:bg-[#92216f] text-white text-xs rounded-lg shadow">
               Ajouter un signet
             </button>
           </div>

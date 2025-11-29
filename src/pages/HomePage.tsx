@@ -10,10 +10,15 @@ const HomaPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto">
           <WelcomeHeader />
-          <div className="mt-8 space-y-8">
-            <RecentItems />
-            <Agenda />
-          </div>
+          <div className="mt-8 space-x-8 flex">
+  <div className="flex-1">
+    <RecentItems />
+  </div>
+  <div className="flex-1">
+    <Agenda />
+  </div>
+</div>
+
         </div>
       </div>
     </MainLayout>

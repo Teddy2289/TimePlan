@@ -117,15 +117,15 @@ const FieldDisplay: React.FC<{
       </div>
       <div className="min-h-[24px]">
         {isPill ? (
-          <span className={`px-2 py-1 rounded text-sm font-medium ${color}`}>
+          <span className={`px-2 py-1 rounded text-xs font-medium ${color}`}>
             {value}
           </span>
         ) : isButton ? (
-          <button className={`text-sm font-medium ${color} hover:underline`}>
+          <button className={`text-xs font-medium ${color} hover:underline`}>
             {value}
           </button>
         ) : (
-          <span className={`text-sm ${color}`}>{value}</span>
+          <span className={`text-xs ${color}`}>{value}</span>
         )}
       </div>
     </div>
@@ -172,7 +172,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
       {/* Contenu de la modale: Largeur et hauteur max, fond blanc */}
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header de la modale (incluant le titre et le bouton de fermeture) */}
-        <div className="flex items-center justify-between h-14 border-b border-gray-300 px-6 text-sm text-gray-700 bg-white">
+        <div className="flex items-center justify-between h-14 border-b border-gray-300 px-6 text-xs text-gray-700 bg-white">
           <div className="flex items-center space-x-3">
             <span className="px-2 py-0.5 text-xs font-medium text-gray-500 border border-gray-300 rounded">
               Tâche
@@ -200,10 +200,10 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             {/* Titre et Bouton "Demander à l'IA" */}
             <div className="mb-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-gray-900">
                   {details.header.taskName}
                 </h2>
-                <button className="flex items-center space-x-1 px-3 py-1 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700">
+                <button className="flex items-center space-x-1 px-3 py-1 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700">
                   <span>Demander à l'IA</span>
                 </button>
               </div>
@@ -213,7 +213,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               <span className="text-blue-600 mr-3 mt-0.5">
                 <ListChecks size={18} />
               </span>
-              <p className="text-sm text-blue-800 flex-1">
+              <p className="text-xs text-blue-800 flex-1">
                 {details.quickAction.text.split("**").map((part, index) =>
                   index % 2 === 1 ? (
                     <strong key={index} className="font-bold">
@@ -253,7 +253,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                       {label}
                     </span>
                   ))}
-                  <button className="text-sm text-gray-500 hover:text-gray-700">
+                  <button className="text-xs text-gray-500 hover:text-gray-700">
                     <Plus size={14} />
                   </button>
                 </div>
@@ -265,17 +265,17 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                     Relations
                   </span>
                 </div>
-                <span className="text-sm text-gray-600">
+                <span className="text-xs text-gray-600">
                   {details.relations}
                 </span>
               </div>
             </div>
             {/* Entité à modifier (Zone de texte) */}
             <div className="mb-8">
-              <p className="text-sm font-semibold text-gray-900 mb-2">
+              <p className="text-xs font-semibold text-gray-900 mb-2">
                 {details.entity.title}
               </p>
-              <div className="p-3 border border-gray-300 rounded-lg bg-gray-50 min-h-[100px] text-sm text-gray-700">
+              <div className="p-3 border border-gray-300 rounded-lg bg-gray-50 min-h-[100px] text-xs text-gray-700">
                 {details.entity.description}
               </div>
             </div>
@@ -286,7 +286,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`py-2 px-1 text-sm font-medium ${
+                    className={`py-2 px-1 text-xs font-medium ${
                       activeTab === tab
                         ? "border-b-2 border-blue-600 text-blue-600"
                         : "border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -300,7 +300,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             <div className="space-y-6">
               {/* Champs personnalisés */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                <h4 className="text-xs font-semibold text-gray-900 mb-3">
                   Champs personnalisés
                 </h4>
                 <div className="space-y-3">
@@ -308,10 +308,10 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                     <div
                       key={index}
                       className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-xs text-gray-600">
                         {field.label}
                       </span>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-xs font-medium text-gray-900">
                         {field.value}
                       </span>
                     </div>
@@ -321,10 +321,10 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
 
               {/* Pièces jointes */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                <h4 className="text-xs font-semibold text-gray-900 mb-3">
                   {details.attachments.label}
                 </h4>
-                <div className="flex items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-lg text-center text-sm text-gray-500 hover:border-blue-500 transition-colors cursor-pointer">
+                <div className="flex items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-lg text-center text-xs text-gray-500 hover:border-blue-500 transition-colors cursor-pointer">
                   <span className="text-blue-600 hover:underline">
                     Déposez vos fichiers ici pour charger
                   </span>
@@ -378,7 +378,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               }`}>
               <div className="space-y-4">
                 {details.activity.map((item, index) => (
-                  <div key={index} className="text-sm">
+                  <div key={index} className="text-xs">
                     <p className="text-gray-900">
                       <span className="font-semibold">{item.user}</span>{" "}
                       {item.action}
@@ -403,7 +403,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Écrivez un commentaire..."
-                  className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none min-h-[50px]"
+                  className="w-full p-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none min-h-[50px]"
                 />
                 <div className="flex justify-between items-center">
                   <div className="flex space-x-3 text-gray-500">
@@ -442,7 +442,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                   </div>
                   <button
                     type="submit"
-                    className="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 disabled:bg-gray-400"
+                    className="px-4 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 disabled:bg-gray-400"
                     disabled={!comment.trim()}>
                     <span>Commentaire</span>
                   </button>

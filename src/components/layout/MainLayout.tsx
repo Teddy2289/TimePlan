@@ -1,7 +1,6 @@
 import React from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import HeaderFilterAction from "./HeaderFilterAction";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,7 +13,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
         <main className="flex-1 overflow-auto">
-          <HeaderFilterAction />
           {children}
         </main>
       </div>

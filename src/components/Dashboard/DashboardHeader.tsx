@@ -23,7 +23,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4 flex-1">
           <h1 className="text-2xl font-bold text-gray-900">Tableau de bord</h1>
-          <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
             {taskCount} tâche{taskCount !== 1 ? "s" : ""}
           </span>
         </div>
@@ -75,7 +75,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {/* Bouton de création */}
           <button
             onClick={onTaskCreate}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            className="inline-flex items-center px-4 py-2 border border-transparent text-xs text-sm rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <Plus className="h-4 w-4 mr-2" />
             Nouvelle tâche
           </button>

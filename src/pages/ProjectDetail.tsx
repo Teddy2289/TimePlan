@@ -1,9 +1,15 @@
+// ProjectDetail.tsx
 import React from "react";
 import { useParams } from "react-router-dom";
 import MainLayout from "../components/layout/MainLayout";
+import MainView from "../components/tasks/MainView";
+import { useDnd } from "../context/DndContext";
+import HeaderFilterAction from "../components/layout/HeaderFilterAction";
 
 const ProjectDetail: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
+
+  console.log("ProjectDetail render - projectId:", projectId); // DEBUG
 
   const projectData = {
     aopia: { name: "AOPIA & LIKEFORMA", color: "purple" },
@@ -21,17 +27,19 @@ const ProjectDetail: React.FC = () => {
 
   return (
     <MainLayout>
-      <div className="p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <div className={`w-4 h-4 bg-${project.color}-500 rounded-full`}></div>
-          <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
-        </div>
+      <div className="flex flex-col h-full bg-gray-50">
+        {/* Header avec navigation par onglets */}
+        <HeaderFilterAction />
+        
+        {/* Contenu du projet */}
+        <div className="flex-1 p-6">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className={`w-4 h-4 bg-${project.color}-500 rounded-full`}></div>
+            <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
+          </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <p className="text-gray-600">
-            Page de détail du projet {project.name}. Ici vous pouvez gérer
-            toutes les tâches et ressources de ce projet.
-          </p>
+          {/* Vue principale (Tableau, List, Calendar, Gantt) */}
+          <MainView />
         </div>
       </div>
     </MainLayout>

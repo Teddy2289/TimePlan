@@ -37,13 +37,14 @@ const RecentItems: React.FC = () => {
   ];
 
   return (
-    <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Réseuls</h2>
+    <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 h-80 overflow-auto">
+      <h2 className="text-xl font-semibold text-gray-900 mb-4">Recente</h2>
       <ul className="space-y-3">
         {recentItems.map((item, index) => (
-          <li key={index} className="flex flex-col">
-            <span className="text-gray-900 font-medium">{item.name}</span>
-            <span className="text-gray-500 text-sm">{item.location}</span>
+          <li key={index} className="flex flex-col p-2 rounded-lg
+ bg-gray-100" >
+            <span className="text-gray-900 text-sm">{item.name}</span>
+            <span className="text-gray-500 text-xs">{item.location}</span>
           </li>
         ))}
       </ul>

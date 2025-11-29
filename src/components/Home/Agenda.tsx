@@ -3,22 +3,22 @@ import { Calendar } from "lucide-react";
 
 const Agenda: React.FC = () => {
   return (
-    <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 h-80 overflow-auto">
       <h2 className="text-xl font-semibold text-gray-900 mb-4">Agenda</h2>
 
       {/* Date header */}
       <div className="flex items-center space-x-2 mb-4">
         <Calendar size={18} className="text-gray-500" />
-        <span className="text-lg font-medium text-gray-900">FON. 25, VOT.</span>
+        <span className="text-lg text-sm text-gray-900">FON. 25, VOT.</span>
       </div>
 
       {/* Placeholder for calendar/agenda */}
       <div className="bg-gray-100 rounded-lg p-8 text-center mb-6">
-        <div className="text-gray-500 font-medium mb-2">[Agionchat]</div>
-        <p className="text-gray-500 text-sm max-w-md mx-auto">
+        <div className="text-gray-500 text-sm mb-2">[Agionchat]</div>
+        <p className="text-gray-500 text-xs max-w-md mx-auto">
           Les éléments à l'ordre du jour dans vos côtendiers s'attribuent ici.
         </p>
-        <button className="text-blue-600 text-sm font-medium hover:text-blue-700 mt-2">
+        <button className="text-blue-600 text-xs text-sm hover:text-blue-700 mt-2">
           En savoir plus.
         </button>
       </div>
@@ -28,7 +28,7 @@ const Agenda: React.FC = () => {
         <div className="flex items-start space-x-3">
           <div className="w-4 h-4 border-2 border-gray-400 rounded-sm mt-1 flex-shrink-0"></div>
           <div>
-            <span className="text-gray-900 font-medium">
+            <span className="text-gray-900 text-sm">
               Ajuster des intégrations de caractères
             </span>
           </div>

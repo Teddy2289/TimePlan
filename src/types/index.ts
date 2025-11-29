@@ -42,7 +42,6 @@ export interface StatusColumn {
   color: string;
 }
 
-// Nouveau type pour le store
 export interface AppState {
   tasks: Task[];
   columns: StatusColumn[];
@@ -61,4 +60,12 @@ export interface SidebarItem {
   icon: string;
   path: string;
   children?: SidebarItem[];
+}
+
+export type ViewType = "tableau" | "list" | "calendar" | "gantt";
+
+export interface ViewConfig {
+  id: ViewType;
+  label: string;
+  icon?: React.ReactNode;
 }
