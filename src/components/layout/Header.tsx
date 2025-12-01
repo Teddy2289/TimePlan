@@ -28,12 +28,12 @@ const Header: React.FC = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center space-x-2">
+        {/* <div className="flex items-center space-x-2">
           <button className="flex items-center space-x-2 px-3 py-2 bg-[#ab2283] text-white rounded-lg text-xs font-medium hover:bg-[#92216f]">
             <Plus size={16} />
             <span>Nouvelle tâche</span>
           </button>
-        </div>
+        </div> */}
 
         {/* User */}
         <div className="w-8 h-8 bg-[#E1AF30] rounded-full flex items-center justify-center">

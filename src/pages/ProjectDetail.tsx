@@ -12,34 +12,37 @@ const ProjectDetail: React.FC = () => {
   console.log("ProjectDetail render - projectId:", projectId); // DEBUG
 
   const projectData = {
-    aopia: { name: "AOPIA & LIKEFORMA", color: "purple" },
-    "hotel-thailand": { name: "Hotel Thaïlande", color: "blue" },
-    "wizi-learn": { name: "WIZI-LEARN, web-app", color: "green" },
-    graphiste: { name: "Graphiste", color: "yellow" },
-    test: { name: "Test", color: "red" },
-    notes: { name: "Project Notes", color: "indigo" },
+    aopia: { name: "AOPIA & LIKEFORMA", color: "bg-purple-500" },
+    "hotel-thailand": { name: "Hotel Thaïlande", color: "bg-blue-500" },
+    "wizi-learn": { name: "WIZI-LEARN, web-app", color: "bg-green-500" },
+    graphiste: { name: "Graphiste", color: "bg-yellow-500" },
+    test: { name: "Test", color: "bg-red-500" },
+    notes: { name: "Project Notes", color: "bg-indigo-500" },
   };
 
   const project = projectData[projectId as keyof typeof projectData] || {
     name: "Projet",
-    color: "gray",
+    color: "bg-gray-500",
   };
 
   return (
     <MainLayout>
       <div className="flex flex-col h-full bg-gray-50">
-        {/* Header avec navigation par onglets */}
+        {/* Header fixe */}
         <HeaderFilterAction />
         
-        {/* Contenu du projet */}
-        <div className="flex-1 p-6">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className={`w-4 h-4 bg-${project.color}-500 rounded-full`}></div>
-            <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
-          </div>
+        {/* Zone de contenu avec défilement seulement ici */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6">
+            {/* En-tête du projet */}
+            <div className="flex items-center space-x-3 mb-6 sticky top-0 bg-gray-50 py-4 z-10">
+              <div className={`w-4 h-4 ${project.color} rounded-full`}></div>
+              <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
+            </div>
 
-          {/* Vue principale (Tableau, List, Calendar, Gantt) */}
-          <MainView />
+            {/* Vue principale (Tableau, List, Calendar, Gantt) */}
+            <MainView />
+          </div>
         </div>
       </div>
     </MainLayout>
