@@ -1,6 +1,15 @@
 // HeaderFilterAction.tsx
 import React from "react";
-import { Eye, Settings2, Bell, HelpCircle, Grid, List, Calendar, GanttChartIcon } from "lucide-react";
+import {
+  Eye,
+  Settings2,
+  Bell,
+  HelpCircle,
+  Grid,
+  List,
+  Calendar,
+  GanttChartIcon,
+} from "lucide-react";
 import { useDnd } from "../../context/DndContext";
 import type { ViewType } from "../../types";
 
@@ -15,7 +24,7 @@ const HeaderFilterAction: React.FC = () => {
   ];
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="px-6 py-3">
         <div className="flex items-center justify-between">
           {/* Left side: View navigation */}
@@ -33,8 +42,7 @@ const HeaderFilterAction: React.FC = () => {
                         ? "bg—[#E1AF30] border border-[#E1AF30] shadow-sm"
                         : "text-gray-600 hover:bg-gray-50 border border-gray-200 hover:border-gray-300"
                     }
-                  `}
-                >
+                  `}>
                   <span className="opacity-80">{view.icon}</span>
                   <span>{view.label}</span>
                 </button>
@@ -48,7 +56,7 @@ const HeaderFilterAction: React.FC = () => {
               <Eye size={16} className="opacity-70" />
               <span>Masquer</span>
             </button>
-            
+
             <button className="flex items-center space-x-2 px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors">
               <Settings2 size={16} className="opacity-70" />
               <span>Personnaliser</span>

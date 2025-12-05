@@ -66,7 +66,7 @@ const Dashboard: React.FC = () => {
       updatedAt: new Date(),
       subtasks: [],
       comments: 0,
-      attachments: 0
+      attachments: 0,
     };
     setSelectedTask(newTask);
     setIsTaskViewOpen(true);
@@ -172,13 +172,6 @@ const Dashboard: React.FC = () => {
                     ? "Essayez de modifier vos termes de recherche."
                     : "Commencez par créer votre première tâche."}
                 </p>
-                {!searchQuery && (
-                  <button
-                    onClick={handleTaskCreate}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Créer une tâche
-                  </button>
-                )}
               </div>
             ) : (
               <DndContainer
@@ -188,9 +181,6 @@ const Dashboard: React.FC = () => {
               />
             )}
           </div>
-
-          {/* Modal de visualisation/édition de tâche */}
-          
         </div>
       </DndProvider>
     </MainLayout>
