@@ -7,57 +7,102 @@ import {
   ChevronDown,
   Plus,
   Settings,
+  Briefcase,
+  Building,
+  Globe,
+  Palette,
+  FileText,
+  TestTube,
+  Users,
+  BookOpen,
+  Hotel,
+  Cpu,
+  CheckSquare,
+  Calendar,
+  BarChart,
 } from "lucide-react";
 import { useNavigation } from "../../hooks/useNavigation";
+import CreateSpaceModal from "../spaces/CreateSpaceModal";
 
 const Sidebar: React.FC = () => {
   const { navigateTo, isActiveRoute, navigationRoutes } = useNavigation();
   const [isTeamSpaceOpen, setIsTeamSpaceOpen] = useState(true);
   const [isProjectsOpen, setIsProjectsOpen] = useState(true);
+  const [isCreateSpaceModalOpen, setIsCreateSpaceModalOpen] = useState(false);
 
-  // Données des projets avec leurs couleurs et chemins
+  // Données des projets avec leurs icônes et chemins
   const projects = [
     {
       id: "aopia",
       name: "AOPIA & LIKEFORMA...",
       count: 13,
-      color: "bg-purple-500",
+      icon: Building,
+      color: "text-purple-600",
+      bgColor: "bg-purple-100",
       path: "/projects/aopia",
     },
     {
       id: "hotel-thailand",
       name: "Hotel Thaïlande",
       count: 5,
-      color: "bg-blue-500",
+      icon: Hotel,
+      color: "text-blue-600",
+      bgColor: "bg-blue-100",
       path: "/projects/hotel-thailand",
     },
     {
       id: "wizi-learn",
       name: "WIZI-LEARN, web-app",
       count: 19,
-      color: "bg-green-500",
+      icon: BookOpen,
+      color: "text-green-600",
+      bgColor: "bg-green-100",
       path: "/projects/wizi-learn",
     },
     {
       id: "graphiste",
       name: "Graphiste",
       count: 5,
-      color: "bg-yellow-500",
+      icon: Palette,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-100",
       path: "/projects/graphiste",
     },
     {
       id: "test",
       name: "Test",
       count: null,
-      color: "bg-red-500",
+      icon: TestTube,
+      color: "text-red-600",
+      bgColor: "bg-red-100",
       path: "/projects/test",
     },
     {
       id: "project-notes",
       name: "Project Notes",
       count: null,
-      color: "bg-indigo-500",
+      icon: FileText,
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-100",
       path: "/projects/notes",
+    },
+    {
+      id: "tech",
+      name: "Tech Team",
+      count: 8,
+      icon: Cpu,
+      color: "text-cyan-600",
+      bgColor: "bg-cyan-100",
+      path: "/projects/tech",
+    },
+    {
+      id: "marketing",
+      name: "Marketing",
+      count: 12,
+      icon: Globe,
+      color: "text-pink-600",
+      bgColor: "bg-pink-100",
+      path: "/projects/marketing",
     },
   ];
 
@@ -73,6 +118,30 @@ const Sidebar: React.FC = () => {
     navigateTo(path);
   };
 
+  // Remplacer les icônes de navigation génériques
+  const getRouteIcon = (label: string) => {
+    switch (label) {
+      case "Accueil":
+        return Home;
+      case "Tableau de bord":
+        return Briefcase;
+      case "Projet":
+        return Users;
+      case "Tâches":
+        return CheckSquare;
+      case "Calendrier":
+        return Calendar;
+      case "Fichiers":
+        return FileText;
+      case "Rapports":
+        return BarChart;
+      case "Paramètres":
+        return Settings;
+      default:
+        return Home;
+    }
+  };
+
   return (
     <aside className="w-64 bg-white border-r border-gray-200 h-full overflow-y-auto flex flex-col">
       {/* En-tête M. MBL Service */}
@@ -81,18 +150,18 @@ const Sidebar: React.FC = () => {
 
         {/* Navigation principale */}
         <div className="space-y-1">
-          {navigationRoutes.map((route) => (
-            <div
-              key={route.path}
-              onClick={() => navigateTo(route.path)}
-              className={`flex items-center space-x-3 py-2 px-3 rounded cursor-pointer ${
-                isActiveRoute(route.path)
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}>
-              {/* Icônes selon la route */}
-              {route.label === "Accueil" && (
-                <Home
+          {navigationRoutes.map((route) => {
+            const IconComponent = getRouteIcon(route.label);
+            return (
+              <div
+                key={route.path}
+                onClick={() => navigateTo(route.path)}
+                className={`flex items-center space-x-3 py-2 px-3 rounded cursor-pointer transition-colors ${
+                  isActiveRoute(route.path)
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}>
+                <IconComponent
                   size={18}
                   className={
                     isActiveRoute(route.path)
@@ -100,33 +169,13 @@ const Sidebar: React.FC = () => {
                       : "text-gray-500"
                   }
                 />
-              )}
-              {route.label === "Tableau de bord" && (
-                <Home
-                  size={18}
-                  className={
-                    isActiveRoute(route.path)
-                      ? "text-blue-600"
-                      : "text-gray-500"
-                  }
-                />
-              )}
-              {route.label === "Projet" && (
-                <Home
-                  size={18}
-                  className={
-                    isActiveRoute(route.path)
-                      ? "text-blue-600"
-                      : "text-gray-500"
-                  }
-                />
-              )}
-              <span className="text-xs font-medium">{route.label}</span>
-            </div>
-          ))}
+                <span className="text-xs font-medium">{route.label}</span>
+              </div>
+            );
+          })}
 
           {/* Plus */}
-          <div className="flex items-center space-x-3 py-2 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer">
+          <div className="flex items-center space-x-3 py-2 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer transition-colors">
             <MoreHorizontal size={18} className="text-gray-500" />
             <span className="text-xs font-medium">Plus</span>
           </div>
@@ -136,7 +185,7 @@ const Sidebar: React.FC = () => {
       {/* Section Favoris et Espaces */}
       <div className="p-4 border-b border-gray-200">
         {/* Favoris */}
-        <div className="flex items-center justify-between py-2 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer mb-2">
+        <div className="flex items-center justify-between py-2 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer transition-colors mb-2">
           <div className="flex items-center space-x-3">
             <Star size={16} className="text-gray-500" />
             <span className="text-xs font-medium">Favoris</span>
@@ -151,19 +200,21 @@ const Sidebar: React.FC = () => {
               Espaces
             </h3>
             <div className="flex space-x-1">
-              <button className="p-1 hover:bg-gray-100 rounded">
+              <button className="p-1 hover:bg-gray-100 rounded transition-colors">
                 <MoreHorizontal size={14} className="text-gray-500" />
               </button>
-              <button className="p-1 hover:bg-gray-100 rounded">
+              <button
+                className="p-1 hover:bg-gray-100 rounded transition-colors"
+                onClick={() => setIsCreateSpaceModalOpen(true)}>
                 <Plus size={14} className="text-gray-500" />
               </button>
             </div>
           </div>
 
           {/* Tout */}
-          <div className="flex items-center space-x-3 py-1 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer">
-            <div className="w-4 h-4 border-2 border-gray-300 rounded-sm flex items-center justify-center">
-              <div className="w-2 h-2 bg-transparent rounded-sm"></div>
+          <div className="flex items-center space-x-3 py-1 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer transition-colors">
+            <div className="w-6 h-6 flex items-center justify-center">
+              <Globe size={14} className="text-gray-500" />
             </div>
             <span className="text-xs">Tout</span>
           </div>
@@ -172,14 +223,14 @@ const Sidebar: React.FC = () => {
           <div className="space-y-1">
             <div
               onClick={toggleTeamSpace}
-              className="flex items-center space-x-3 py-1 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer">
-              <div className="w-4 h-4 border-2 border-blue-500 rounded-sm flex items-center justify-center">
-                <div className="w-2 h-2 bg-blue-500 rounded-sm"></div>
+              className="flex items-center space-x-3 py-1 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer transition-colors">
+              <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                <Users size={14} className="text-blue-600" />
               </div>
               <span className="text-xs">Team Space</span>
               <div className="flex space-x-1 ml-auto items-center">
                 <button
-                  className="p-1 hover:bg-gray-100 rounded"
+                  className="p-1 hover:bg-gray-100 rounded transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     // Action pour les points de suspension
@@ -187,7 +238,7 @@ const Sidebar: React.FC = () => {
                   <MoreHorizontal size={12} className="text-gray-500" />
                 </button>
                 <button
-                  className="p-1 hover:bg-gray-100 rounded"
+                  className="p-1 hover:bg-gray-100 rounded transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     // Action pour le plus
@@ -210,25 +261,23 @@ const Sidebar: React.FC = () => {
                 <div className="space-y-1">
                   <div
                     onClick={toggleProjects}
-                    className="flex items-center space-x-3 py-1 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer">
-                    <div className="w-4 h-4 border-2 border-green-500 rounded-sm flex items-center justify-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-sm"></div>
+                    className="flex items-center space-x-3 py-1 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer transition-colors">
+                    <div className="w-6 h-6 bg-green-100 rounded flex items-center justify-center">
+                      <Briefcase size={14} className="text-green-600" />
                     </div>
                     <span className="text-xs">Projets</span>
                     <div className="flex space-x-1 ml-auto items-center">
                       <button
-                        className="p-1 hover:bg-gray-100 rounded"
+                        className="p-1 hover:bg-gray-100 rounded transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
-                          // Action pour les points de suspension
                         }}>
                         <MoreHorizontal size={12} className="text-gray-500" />
                       </button>
                       <button
-                        className="p-1 hover:bg-gray-100 rounded"
+                        className="p-1 hover:bg-gray-100 rounded transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
-                          // Action pour le plus
                         }}>
                         <Plus size={12} className="text-gray-500" />
                       </button>
@@ -244,27 +293,35 @@ const Sidebar: React.FC = () => {
                   {/* Liste des projets (collapsible) */}
                   {isProjectsOpen && (
                     <div className="ml-6 space-y-1">
-                      {projects.map((project) => (
-                        <div
-                          key={project.id}
-                          onClick={() => handleProjectClick(project.path)}
-                          className={`flex items-center justify-between py-1 px-3 rounded cursor-pointer ${
-                            isActiveRoute(project.path)
-                              ? "bg-blue-50 text-blue-600"
-                              : "text-gray-600 hover:bg-gray-50"
-                          }`}>
-                          <div className="flex items-center space-x-2">
-                            <div
-                              className={`w-2 h-2 ${project.color} rounded-full`}></div>
-                            <span className="text-xs">{project.name}</span>
+                      {projects.map((project) => {
+                        const ProjectIcon = project.icon;
+                        return (
+                          <div
+                            key={project.id}
+                            onClick={() => handleProjectClick(project.path)}
+                            className={`flex items-center justify-between py-1 px-3 rounded cursor-pointer transition-colors ${
+                              isActiveRoute(project.path)
+                                ? "bg-blue-50 text-blue-600"
+                                : "text-gray-600 hover:bg-gray-50"
+                            }`}>
+                            <div className="flex items-center space-x-2">
+                              <div
+                                className={`w-6 h-6 ${project.bgColor} rounded flex items-center justify-center`}>
+                                <ProjectIcon
+                                  size={14}
+                                  className={project.color}
+                                />
+                              </div>
+                              <span className="text-xs">{project.name}</span>
+                            </div>
+                            {project.count && (
+                              <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                                {project.count}
+                              </span>
+                            )}
                           </div>
-                          {project.count && (
-                            <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-                              {project.count}
-                            </span>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -274,27 +331,42 @@ const Sidebar: React.FC = () => {
         </div>
 
         {/* Bouton Créer un espace */}
-        <div className="flex items-center space-x-3 py-2 px-3 text-blue-600 hover:bg-blue-50 rounded cursor-pointer mt-2">
-          <Plus size={16} />
+        <div
+          onClick={() => setIsCreateSpaceModalOpen(true)}
+          className="flex items-center space-x-3 py-2 px-3 text-blue-600 hover:bg-blue-50 rounded cursor-pointer transition-colors mt-2">
+          <Plus size={16} className="text-blue-600" />
           <span className="text-xs font-medium">Créer un espace</span>
         </div>
+
+        {/* Modal de création d'espace */}
+        {isCreateSpaceModalOpen && (
+          <CreateSpaceModal
+            isOpen={isCreateSpaceModalOpen}
+            onClose={() => setIsCreateSpaceModalOpen(false)}
+            onCreateSpace={(spaceData) => {
+              console.log("Espace créé:", spaceData);
+              // Ajouter ici la logique pour créer l'espace
+            }}
+          />
+        )}
       </div>
 
       {/* Section basse avec boutons */}
       <div className="p-4 border-t border-gray-200 mt-auto">
-        <div className="flex space-x-2 mb-4">
-          <button className="flex-1 py-2 px-3 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center">
+        <div className="flex space-x-2 mb-2">
+          <button className="flex-1 py-2 px-3 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center">
+            <Users size={14} className="mr-2" />
             <span>Inviter</span>
           </button>
           <button
             onClick={() => navigateTo("/settings")}
-            className="flex-1 py-2 px-3 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 flex items-center justify-center">
+            className="flex-1 py-2 px-3 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors flex items-center justify-center">
             <span>Aide</span>
           </button>
         </div>
 
         {/* Profile utilisateur */}
-        <div className="flex items-center space-x-3 pt-2 border-t border-gray-200">
+        <div className="flex items-center space-x-3 pt-4 border-t border-gray-200">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
             <span className="text-white text-xs font-medium">JD</span>
           </div>
@@ -304,7 +376,10 @@ const Sidebar: React.FC = () => {
             </p>
             <p className="text-xs text-gray-500 truncate">Administrateur</p>
           </div>
-          <Settings size={16} className="text-gray-400" />
+          <Settings
+            size={16}
+            className="text-gray-400 hover:text-gray-600 cursor-pointer"
+          />
         </div>
       </div>
     </aside>
