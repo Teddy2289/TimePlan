@@ -23,7 +23,69 @@
   --color-white: #ffffff;
 }
 
+/* STYLES DE SCROLLBAR ÉLÉGANT */
+/* Pour Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 
+::-webkit-scrollbar-track {
+  background: var(--color-gray-100);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-primary) 80%, transparent);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Pour Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-gray-100);
+}
+
+/* Scrollbar plus fine pour certains éléments */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: var(--color-gray-50);
+}
+
+/* Scrollbar avec accent color */
+.scrollbar-accent::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+}
+
+.scrollbar-accent::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-accent) 80%, transparent);
+}
+
+/* Scrollbar pour les éléments sombres */
+.scrollbar-dark::-webkit-scrollbar-track {
+  background: var(--color-gray-800);
+}
+
+.scrollbar-dark::-webkit-scrollbar-thumb {
+  background: var(--color-gray-600);
+}
+
+.scrollbar-dark::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-500);
+}
 
 @layer components {
   * {
@@ -32,49 +94,68 @@
     font-family: "Montserrat", sans-serif;
     font-optical-sizing: auto;
     font-style: normal;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   /* Dans votre CSS global */
-.drag-prevent-select {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
+  .drag-prevent-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
 
-/* Pour les éléments interactifs à l'intérieur des cartes */
-.drag-prevent-select button,
-.drag-prevent-select div[role="button"] {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
+  /* Pour les éléments interactifs à l'intérieur des cartes */
+  .drag-prevent-select button,
+  .drag-prevent-select div[role="button"] {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
 
   .btn-primary {
     background-color: var(--color-primary);
     color: var(--color-white);
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
   }
 
   .btn-primary:hover {
     background-color: color-mix(in srgb, var(--color-primary) 90%, transparent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(49, 182, 184, 0.2);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
   }
 
   .btn-secondary {
     background-color: var(--color-secondary);
     color: var(--color-white);
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
   }
 
   .btn-secondary:hover {
@@ -83,40 +164,168 @@
       var(--color-secondary) 90%,
       transparent
     );
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(171, 34, 131, 0.2);
+  }
+
+  .btn-secondary:active {
+    transform: translateY(0);
   }
 
   .sidebar-item {
     display: flex;
     align-items: center;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding: 0.5rem 1rem;
     color: var(--color-gray-700);
     border-radius: 0.5rem;
     cursor: pointer;
     transition: all 0.2s;
+    gap: 0.75rem;
+    font-weight: 500;
   }
 
   .sidebar-item:hover {
     background-color: var(--color-gray-100);
+    transform: translateX(2px);
   }
 
   .sidebar-item.active {
     background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
     color: var(--color-primary);
+    font-weight: 600;
   }
 
   .task-card {
     background-color: var(--color-white);
     border: 1px solid var(--color-gray-200);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    transition: box-shadow 0.2s;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+      0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
   }
 
   .task-card:hover {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    border-color: var(--color-primary);
+  }
+
+  /* Effet de bordure animée pour task-card */
+  .task-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      var(--color-primary),
+      var(--color-accent)
+    );
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .task-card:hover::before {
+    opacity: 1;
+  }
+
+  /* Classe utilitaire pour les conteneurs avec scroll */
+  .scroll-container {
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .scroll-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scroll-container::-webkit-scrollbar-thumb {
+    background: var(--color-gray-400);
+  }
+
+  .scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gray-500);
+  }
+
+  /* Animation pour les éléments */
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(
+      135deg,
+      var(--color-primary),
+      var(--color-secondary)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .badge-primary {
+    background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    color: var(--color-primary);
+  }
+
+  .badge-secondary {
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary) 10%,
+      transparent
+    );
+    color: var(--color-secondary);
+  }
+
+  .badge-accent {
+    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    color: var(--color-accent);
+  }
+}
+
+/* Styles spécifiques pour mobile */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .task-card {
+    padding: 1rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
   }
 }
