@@ -1,13 +1,69 @@
-// MainView.tsx - CORRIGÉ
+// MainView.tsx - version améliorée
 import React from "react";
 import { useDnd } from "../../context/DndContext";
 import DndContainer from "./DndContainer";
 import ListView from "./ListView";
 import CalendarView from "./CalendarView";
 import GanttView from "./GanttView";
+import type { Task } from "../../types";
 
-const MainView: React.FC = () => {
-  const { currentView } = useDnd();
+interface MainViewProps {
+  projectTasks?: Task[];
+}
+
+const MainView: React.FC<MainViewProps> = ({ projectTasks = [] }) => {
+  const { currentView, setTasks, tasks: contextTasks } = useDnd();
+
+  // Synchroniser les tâches du projet avec le contexte si nécessaire
+  React.useEffect(() => {
+    if (projectTasks.length > 0) {
+      // Convertir les statuts de l'API vers votre application
+      const convertedTasks = projectTasks.map((task) => ({
+        ...task,
+        status: convertApiStatusToAppStatus(task.status),
+      }));
+      setTasks(convertedTasks);
+    }
+  }, [projectTasks, setTasks]);
+
+  const convertApiStatusToAppStatus = (
+    apiStatus: string
+  ):
+    | "en-attente"
+    | "ouvert"
+    | "en-cours"
+    | "a-valider"
+    | "termine"
+    | "backlog"
+    | "todo"
+    | "doing"
+    | "done" => {
+    const statusMap: Record<
+      string,
+      | "en-attente"
+      | "ouvert"
+      | "en-cours"
+      | "a-valider"
+      | "termine"
+      | "backlog"
+      | "todo"
+      | "doing"
+      | "done"
+    > = {
+      backlog: "en-attente",
+      todo: "ouvert",
+      doing: "en-cours",
+      done: "termine",
+      "en-attente": "en-attente",
+      ouvert: "ouvert",
+      "en-cours": "en-cours",
+      "a-valider": "a-valider",
+      termine: "termine",
+    };
+
+    // fallback to a valid status or default to "en-attente"
+    return statusMap[apiStatus] ?? "en-attente";
+  };
 
   const renderView = () => {
     switch (currentView) {
@@ -24,7 +80,7 @@ const MainView: React.FC = () => {
     }
   };
 
-  return <div className="flex-1">{renderView()}</div>; 
+  return <div className="flex-1">{renderView()}</div>;
 };
 
 export default MainView;

@@ -13,7 +13,12 @@ import {
 import { useDnd } from "../../context/DndContext";
 import type { ViewType } from "../../types";
 
-const HeaderFilterAction: React.FC = () => {
+interface HeaderFilterActionProps {
+  projectName?: string;
+}
+const HeaderFilterAction: React.FC<HeaderFilterActionProps> = ({
+  projectName,
+}) => {
   const { currentView, setCurrentView } = useDnd();
 
   const views: { id: ViewType; label: string; icon: React.ReactNode }[] = [

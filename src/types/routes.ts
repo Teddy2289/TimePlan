@@ -1,10 +1,12 @@
+import { type ComponentType } from "react";
 export interface RouteConfig {
   path: string;
-  component: React.ComponentType;
+  component: ComponentType;
   label: string;
   exact?: boolean;
-  icon?: React.ComponentType;
-  showInNavigation?: boolean;
+  showInNavigation: boolean;
+  requiresAuth?: boolean;
+  isPublic?: boolean;
 }
 
 export interface RoutesConfig {

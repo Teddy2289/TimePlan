@@ -1,3 +1,4 @@
+// SortableTaskCard.tsx - CORRIGÉ
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -48,6 +49,12 @@ const SortableTaskCard: React.FC<SortableTaskCardProps> = ({
     }
   };
 
+  // CORRECTION: Utiliser initials ou name au lieu de l'objet assignee complet
+  const assigneeInitials =
+    task.assignee?.initials ||
+    task.assignee?.name?.charAt(0).toUpperCase() ||
+    "?";
+
   const handleClick = (e: React.MouseEvent) => {
     if (isDragging) {
       e.preventDefault();
@@ -69,13 +76,13 @@ const SortableTaskCard: React.FC<SortableTaskCardProps> = ({
         cursor-grab active:cursor-grabbing 
         group hover:shadow-md hover:border-gray-300
         select-none touch-none
-        ${isDragging
-          ? "opacity-60 rotate-2 shadow-xl z-50 scale-105 border-2 border-blue-400 bg-blue-50"
-          : "hover:scale-[1.02]"
+        ${
+          isDragging
+            ? "opacity-60 rotate-2 shadow-xl z-50 scale-105 border-2 border-blue-400 bg-blue-50"
+            : "hover:scale-[1.02]"
         }
       `}
-      onClick={handleClick}
-    >
+      onClick={handleClick}>
       {/* Header avec titre */}
       <div className="flex justify-between items-start mb-2">
         <h3 className="font-medium text-gray-900 text-xs leading-snug line-clamp-2 flex-1">
@@ -86,8 +93,7 @@ const SortableTaskCard: React.FC<SortableTaskCardProps> = ({
           onClick={(e) => {
             e.stopPropagation();
             console.log("Menu pour:", task.title);
-          }}
-        >
+          }}>
           <MoreHorizontal size={14} />
         </button>
       </div>
@@ -101,20 +107,19 @@ const SortableTaskCard: React.FC<SortableTaskCardProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               console.log("Toggle checkbox for:", task.id);
-            }}
-          >
+            }}>
             <CheckSquare size={12} className="text-gray-600" />
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
           {/* Icônes de métadonnées */}
-          {task.attachments > 0 && (
+          {(task.attachments ?? 0) > 0 && (
             <div className="flex items-center space-x-1 text-gray-400">
               <Paperclip size={12} />
             </div>
           )}
-          {task.comments > 0 && (
+          {(task.comments ?? 0) > 0 && (
             <div className="flex items-center space-x-1 text-gray-400">
               <MessageSquare size={12} />
             </div>
@@ -122,18 +127,19 @@ const SortableTaskCard: React.FC<SortableTaskCardProps> = ({
 
           {/* Point de priorité */}
           <div
-            className={`w-2 h-2 ${getPriorityColor(task.priority)} rounded-full`}
+            className={`w-2 h-2 ${getPriorityColor(
+              task.priority
+            )} rounded-full`}
           />
 
-          {/* Avatar */}
+          {/* Avatar - CORRECTION: utiliser assigneeInitials au lieu de task.assignee */}
           <div
             className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full text-[10px] text-white flex items-center justify-center font-medium shadow-sm cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               console.log("Click avatar for:", task.assignee);
-            }}
-          >
-            {task.assignee}
+            }}>
+            {assigneeInitials} {/* CORRECTION ICI */}
           </div>
         </div>
       </div>

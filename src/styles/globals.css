@@ -35,6 +35,22 @@
   border-radius: 4px;
 }
 
+/* src/index.css */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
+}
+
 ::-webkit-scrollbar-thumb {
   background: var(--color-primary);
   border-radius: 4px;
@@ -96,7 +112,33 @@
     font-style: normal;
     box-sizing: border-box;
   }
+  /* src/styles/globals.css */
 
+  /* Animation pour les champs */
+  input:focus {
+    transition: all 0.2s ease;
+  }
+
+  /* Animation pour les boutons */
+  button {
+    transition: all 0.2s ease;
+  }
+
+  /* Effet de vague pour le gradient */
+  @keyframes wave {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .gradient-wave {
+    background-size: 200% 200%;
+    animation: wave 3s ease-in-out infinite;
+  }
   html {
     scroll-behavior: smooth;
   }

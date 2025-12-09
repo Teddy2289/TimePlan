@@ -1,4 +1,4 @@
-// DndContainer.tsx
+// DndContainer.tsx - CORRIGÉ
 import React from "react";
 import {
   DndContext,
@@ -21,7 +21,14 @@ import StatusColumn from "./StatusColumn";
 import { type Task } from "../../types";
 
 const DndContainer: React.FC = () => {
-  const { tasks, moveTask, handleTaskClick, activeTask, setActiveTask, addTask } = useDnd();
+  const {
+    tasks,
+    moveTask,
+    handleTaskClick,
+    activeTask,
+    setActiveTask,
+    addTask,
+  } = useDnd();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -44,45 +51,38 @@ const DndContainer: React.FC = () => {
       id: "ouvert",
       title: "OUVERT",
       status: "ouvert" as Task["status"],
-            color: "",
-
+      color: "",
       tasks: tasks.filter((task) => task.status === "ouvert"),
     },
     {
       id: "en-cours",
       title: "EN COURS",
       status: "en-cours" as Task["status"],
-            color: "",
-
+      color: "",
       tasks: tasks.filter((task) => task.status === "en-cours"),
     },
     {
       id: "a-valider",
       title: "À VALIDER",
       status: "a-valider" as Task["status"],
-            color: "",
-
+      color: "",
       tasks: tasks.filter((task) => task.status === "a-valider"),
     },
     {
       id: "termine",
       title: "TERMINÉ",
       status: "termine" as Task["status"],
-            color: "",
-
+      color: "",
       tasks: tasks.filter((task) => task.status === "termine"),
     },
   ];
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    const task = tasks.find((t) => t.id === active.id);
+    // Convertir active.id en number pour la comparaison
+    const taskId = Number(active.id);
+    const task = tasks.find((t) => t.id === taskId);
     setActiveTask(task || null);
-  };
-
-  const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over) return;
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -91,14 +91,21 @@ const DndContainer: React.FC = () => {
 
     if (!over) return;
 
-    const taskId = active.id as string;
+    // Convertir les IDs en numbers
+    const taskId = Number(active.id);
     const overId = over.id as string;
 
     // Vérifie si on drop sur une colonne (statut)
-    const validStatuses = ["en-attente", "ouvert", "en-cours", "a-valider", "termine"];
-    
+    const validStatuses = [
+      "en-attente",
+      "ouvert",
+      "en-cours",
+      "a-valider",
+      "termine",
+    ];
+
     if (validStatuses.includes(overId)) {
-      const currentTask = tasks.find(t => t.id === taskId);
+      const currentTask = tasks.find((t) => t.id === taskId);
       if (currentTask && currentTask.status !== overId) {
         moveTask(taskId, overId as Task["status"]);
       }
@@ -115,13 +122,10 @@ const DndContainer: React.FC = () => {
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-    >
+      onDragEnd={handleDragEnd}>
       <SortableContext
         items={statusColumns.map((col) => col.id)}
-        strategy={horizontalListSortingStrategy}
-      >
+        strategy={horizontalListSortingStrategy}>
         <div className="flex gap-4 p-4 overflow-x-auto min-h-[600px]">
           {statusColumns.map((column) => (
             <StatusColumn
@@ -146,7 +150,7 @@ const DndContainer: React.FC = () => {
                 {activeTask.status}
               </span>
               <div className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full text-[10px] text-white flex items-center justify-center font-medium">
-                {activeTask.assignee}
+                {activeTask.assignee?.initials || "?"}
               </div>
             </div>
           </div>

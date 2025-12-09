@@ -115,8 +115,8 @@ const additionalMockTasks: Task[] = [
     comments: 2,
     attachments: 1,
     assignee: "MB",
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-01-15'),
+    createdAt: new Date("2024-01-15"),
+    updatedAt: new Date("2024-01-15"),
   },
   {
     id: "8",
@@ -135,13 +135,13 @@ const additionalMockTasks: Task[] = [
         id: "8-2",
         title: "Identifier les points d'amélioration",
         completed: false,
-      }
+      },
     ],
     comments: 5,
     attachments: 3,
     assignee: "AL",
-    createdAt: new Date('2024-01-10'),
-    updatedAt: new Date('2024-01-14'),
+    createdAt: new Date("2024-01-10"),
+    updatedAt: new Date("2024-01-14"),
   },
 
   // Tâches pour "ouvert"
@@ -156,13 +156,14 @@ const additionalMockTasks: Task[] = [
     comments: 3,
     attachments: 2,
     assignee: "RG",
-    createdAt: new Date('2024-01-12'),
-    updatedAt: new Date('2024-01-16'),
+    createdAt: new Date("2024-01-12"),
+    updatedAt: new Date("2024-01-16"),
   },
   {
     id: "10",
     title: "API - Endpoints utilisateurs",
-    description: "Développer les endpoints CRUD pour la gestion des utilisateurs",
+    description:
+      "Développer les endpoints CRUD pour la gestion des utilisateurs",
     status: "ouvert",
     priority: "normale",
     tags: ["API", "backend"],
@@ -170,8 +171,8 @@ const additionalMockTasks: Task[] = [
     comments: 1,
     attachments: 0,
     assignee: "TP",
-    createdAt: new Date('2024-01-13'),
-    updatedAt: new Date('2024-01-13'),
+    createdAt: new Date("2024-01-13"),
+    updatedAt: new Date("2024-01-13"),
   },
 
   // Tâches pour "en-cours"
@@ -197,13 +198,13 @@ const additionalMockTasks: Task[] = [
         id: "11-3",
         title: "Interactivité JavaScript",
         completed: false,
-      }
+      },
     ],
     comments: 8,
     attachments: 4,
     assignee: "KL",
-    createdAt: new Date('2024-01-08'),
-    updatedAt: new Date('2024-01-16'),
+    createdAt: new Date("2024-01-08"),
+    updatedAt: new Date("2024-01-16"),
   },
   {
     id: "12",
@@ -216,8 +217,8 @@ const additionalMockTasks: Task[] = [
     comments: 2,
     attachments: 1,
     assignee: "JD",
-    createdAt: new Date('2024-01-14'),
-    updatedAt: new Date('2024-01-16'),
+    createdAt: new Date("2024-01-14"),
+    updatedAt: new Date("2024-01-16"),
   },
 
   // Tâches pour "termine"
@@ -232,8 +233,8 @@ const additionalMockTasks: Task[] = [
     comments: 0,
     attachments: 1,
     assignee: "MB",
-    createdAt: new Date('2024-01-05'),
-    updatedAt: new Date('2024-01-12'),
+    createdAt: new Date("2024-01-05"),
+    updatedAt: new Date("2024-01-12"),
   },
   {
     id: "14",
@@ -252,14 +253,14 @@ const additionalMockTasks: Task[] = [
         id: "14-2",
         title: "Scripts d'installation",
         completed: true,
-      }
+      },
     ],
     comments: 4,
     attachments: 5,
     assignee: "AL",
-    createdAt: new Date('2024-01-03'),
-    updatedAt: new Date('2024-01-10'),
-  }
+    createdAt: new Date("2024-01-03"),
+    updatedAt: new Date("2024-01-10"),
+  },
 ];
 export const useTaskManager = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -274,9 +275,9 @@ export const useTaskManager = () => {
           const parsedState: AppState = JSON.parse(savedState);
           const tasksToUpdate = parsedState.tasks.map((task) => ({
             ...task,
-            createdAt: new Date(task.createdAt),
-            updatedAt: new Date(task.updatedAt),
-            dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
+            createdAt: new Date(task.created_at),
+            updatedAt: new Date(task.updated_at),
+            dueDate: task.due_date ? new Date(task.due_date) : undefined,
           }));
           setTasks((prevTasks) => [...prevTasks, ...tasksToUpdate]);
         } else {
@@ -307,7 +308,11 @@ export const useTaskManager = () => {
     );
   };
 
-  const moveTask = (taskId: string, newIndex: number, status: Task["status"]) => {
+  const moveTask = (
+    taskId: string,
+    newIndex: number,
+    status: Task["status"]
+  ) => {
     setTasks((prevTasks) => {
       const tasksInStatus = prevTasks.filter((task) => task.status === status);
       const otherTasks = prevTasks.filter((task) => task.status !== status);
