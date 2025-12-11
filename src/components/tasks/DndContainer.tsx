@@ -1,4 +1,4 @@
-// DndContainer.tsx - CORRIGÉ
+// src/components/tasks/DndContainer.tsx - CORRIGÉ
 import React from "react";
 import {
   DndContext,
@@ -9,7 +9,6 @@ import {
   useSensors,
   type DragEndEvent,
   type DragStartEvent,
-  type DragOverEvent,
   DragOverlay,
 } from "@dnd-kit/core";
 import {
@@ -18,16 +17,24 @@ import {
 } from "@dnd-kit/sortable";
 import { useDnd } from "../../context/DndContext";
 import StatusColumn from "./StatusColumn";
+import TaskDetailsModal from "./TaskDetailsModal"; // IMPORTEZ LE MODAL ICI
 import { type Task } from "../../types";
 
-const DndContainer: React.FC = () => {
+interface DndContainerProps {
+  onOpenCreateModal?: (status?: string) => void;
+}
+
+const DndContainer: React.FC<DndContainerProps> = ({ onOpenCreateModal }) => {
   const {
     tasks,
     moveTask,
-    handleTaskClick,
     activeTask,
     setActiveTask,
-    addTask,
+    selectedTaskForDetails, // AJOUTEZ CES LIGNES
+    isTaskDetailsModalOpen,
+    closeTaskDetails,
+    updateTask,
+    openTaskDetails,
   } = useDnd();
 
   const sensors = useSensors(
@@ -79,7 +86,6 @@ const DndContainer: React.FC = () => {
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    // Convertir active.id en number pour la comparaison
     const taskId = Number(active.id);
     const task = tasks.find((t) => t.id === taskId);
     setActiveTask(task || null);
@@ -91,11 +97,9 @@ const DndContainer: React.FC = () => {
 
     if (!over) return;
 
-    // Convertir les IDs en numbers
     const taskId = Number(active.id);
     const overId = over.id as string;
 
-    // Vérifie si on drop sur une colonne (statut)
     const validStatuses = [
       "en-attente",
       "ouvert",
@@ -112,51 +116,79 @@ const DndContainer: React.FC = () => {
     }
   };
 
+  // MODIFIEZ CETTE FONCTION POUR UTILISER LE CONTEXTE
   const handleAddTask = (status: string) => {
-    const title = `Nouvelle tâche ${new Date().getTime()}`;
-    addTask(title, status as Task["status"]);
+    if (onOpenCreateModal) {
+      onOpenCreateModal(status);
+    }
+  };
+
+  // FONCTION POUR METTRE À JOUR LA TÂCHE
+  const handleUpdateTask = async (taskId: number, updates: Partial<Task>) => {
+    try {
+      updateTask(taskId, updates);
+
+      // Si vous voulez aussi mettre à jour via l'API :
+      // await taskService.updateTask(taskId, updates);
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la tâche:", error);
+    }
   };
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}>
-      <SortableContext
-        items={statusColumns.map((col) => col.id)}
-        strategy={horizontalListSortingStrategy}>
-        <div className="flex gap-4 p-4 overflow-x-auto min-h-[600px]">
-          {statusColumns.map((column) => (
-            <StatusColumn
-              key={column.id}
-              column={column}
-              tasks={column.tasks}
-              onTaskClick={handleTaskClick}
-              onAddTask={handleAddTask}
-            />
-          ))}
-        </div>
-      </SortableContext>
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={statusColumns.map((col) => col.id)}
+          strategy={horizontalListSortingStrategy}>
+          <div className="flex gap-4 p-4 overflow-x-auto min-h-[600px]">
+            {statusColumns.map((column) => (
+              <StatusColumn
+                key={column.id}
+                column={column}
+                tasks={column.tasks}
+                onTaskClick={openTaskDetails} // UTILISEZ LA FONCTION DU CONTEXTE
+                onAddTask={handleAddTask}
+              />
+            ))}
+          </div>
+        </SortableContext>
 
-      <DragOverlay>
-        {activeTask ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-lg opacity-90 rotate-3 transform max-w-xs">
-            <h3 className="font-medium text-gray-900 text-sm mb-2">
-              {activeTask.title}
-            </h3>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                {activeTask.status}
-              </span>
-              <div className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full text-[10px] text-white flex items-center justify-center font-medium">
-                {activeTask.assignee?.initials || "?"}
+        <DragOverlay>
+          {activeTask ? (
+            <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-lg opacity-90 rotate-3 transform max-w-xs">
+              <h3 className="font-medium text-gray-900 text-sm mb-2">
+                {activeTask.title}
+              </h3>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                  {activeTask.status}
+                </span>
+                <div className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full text-[10px] text-white flex items-center justify-center font-medium">
+                  {activeTask.assignee?.initials || "?"}
+                </div>
               </div>
             </div>
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      {/* AJOUTEZ LE MODAL DE DÉTAILS ICI */}
+      {selectedTaskForDetails && (
+        <TaskDetailsModal
+          task={selectedTaskForDetails}
+          isOpen={isTaskDetailsModalOpen}
+          onClose={closeTaskDetails}
+          onUpdateTask={(updates) => {
+            handleUpdateTask(selectedTaskForDetails.id, updates);
+          }}
+        />
+      )}
+    </>
   );
 };
 

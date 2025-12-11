@@ -227,12 +227,6 @@ const Sidebar: React.FC = () => {
                   <span className="text-xs truncate">{project.name}</span>
                 </div>
               </div>
-              <div className="ml-2 flex-shrink-0">
-                <span
-                  className={`text-xs px-1.5 py-0.5 rounded ${projectColor.bgColor} ${projectColor.color}`}>
-                  {projectsTeamsService.getStatusLabel(project.status)}
-                </span>
-              </div>
             </div>
           );
         })}
@@ -403,12 +397,6 @@ const Sidebar: React.FC = () => {
                               <span className="text-xs truncate">
                                 {team.name}
                               </span>
-                              {/* Optionnel: Afficher la description en plus petit */}
-                              {team.description && (
-                                <p className="text-xs text-gray-400 truncate mt-0.5">
-                                  {team.description}
-                                </p>
-                              )}
                             </div>
                             <div className="flex space-x-1 items-center">
                               <button

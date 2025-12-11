@@ -5,7 +5,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import SortableTaskCard from "./SortableTaskCard";
-import TaskDetailsModal from "./TaskDetailsModal";
 import type { StatusColumn as StatusColumnType, Task } from "../../types";
 import {
   Plus,
@@ -147,7 +146,7 @@ const StatusColumn: React.FC<StatusColumnProps> = ({
         }`}>
         {/* Header moderne et épuré */}
         <div
-          className={`px-4 py-3 rounded-t-2xl border-b border-gray-400 ${styles.headerBg} `}>
+          className={`px-4 py-3 rounded-t-2xl border-b border-gray-200 ${styles.headerBg} `}>
           <div className="flex items-center justify-between">
             <div
               className={`flex items-center space-x-2 ${styles.bgback} px-2 py-1 rounded-full`}>
@@ -186,10 +185,11 @@ const StatusColumn: React.FC<StatusColumnProps> = ({
               ))}
             </div>
           </SortableContext>
-
           {/* Bouton ajouter — modern UI */}
           <button
-            onClick={handleAddTask}
+            onClick={() => {
+              onAddTask(column.id);
+            }}
             className={`w-full mt-3 py-2 rounded-lg transition-all duration-200 text-xs font-medium flex items-center justify-center gap-2 border border-dashed ${styles.button} group`}>
             <Plus
               size={14}
@@ -199,18 +199,6 @@ const StatusColumn: React.FC<StatusColumnProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Modal */}
-      {selectedTask && (
-        <TaskDetailsModal
-          task={selectedTask}
-          isOpen={!!selectedTask}
-          onClose={handleCloseModal}
-          onUpdateTask={(updates) => {
-            console.log("Update:", selectedTask.id, updates);
-          }}
-        />
-      )}
     </>
   );
 };

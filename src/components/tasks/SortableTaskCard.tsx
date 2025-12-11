@@ -1,14 +1,9 @@
-// SortableTaskCard.tsx - CORRIGÉ
+// SortableTaskCard.tsx - VERSION MINIMALISTE
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { type Task } from "../../types";
-import {
-  MessageSquare,
-  Paperclip,
-  MoreHorizontal,
-  CheckSquare,
-} from "lucide-react";
+import { Calendar, User } from "lucide-react";
 
 interface SortableTaskCardProps {
   task: Task;
@@ -37,23 +32,31 @@ const SortableTaskCard: React.FC<SortableTaskCardProps> = ({
     transition,
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "urgente":
-        return "bg-red-400";
-      case "elevee":
-        return "bg-orange-400";
-      case "normale":
-      default:
-        return columnStyle?.accent || "bg-gray-400";
-    }
+  // Formatage date
+  const formatDueDate = () => {
+    if (!task.due_date) return null;
+
+    const today = new Date();
+    const dueDate = new Date(task.due_date);
+    const diffDays = Math.ceil(
+      (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (diffDays === 0) return "Aujourd'hui";
+    if (diffDays === 1) return "Demain";
+    if (diffDays < 0) return `${Math.abs(diffDays)}j retard`;
+
+    return dueDate.toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "short",
+    });
   };
 
-  // CORRECTION: Utiliser initials ou name au lieu de l'objet assignee complet
-  const assigneeInitials =
-    task.assignee?.initials ||
-    task.assignee?.name?.charAt(0).toUpperCase() ||
-    "?";
+  const dueDateText = formatDueDate();
+  const isOverdue = task.due_date && new Date(task.due_date) < new Date();
+  const assigneeName = task.assignee?.name
+    ? task.assignee.name.split(" ")[0]
+    : null;
 
   const handleClick = (e: React.MouseEvent) => {
     if (isDragging) {
@@ -71,78 +74,61 @@ const SortableTaskCard: React.FC<SortableTaskCardProps> = ({
       {...attributes}
       {...listeners}
       className={`
-        bg-white rounded-lg p-3 
+        bg-white rounded-lg p-4 mb-2
         transition-all duration-200 
         cursor-grab active:cursor-grabbing 
-        group hover:shadow-md hover:border-gray-300
+        hover:shadow-md hover:border-gray-300 border border-gray-200
         select-none touch-none
         ${
           isDragging
-            ? "opacity-60 rotate-2 shadow-xl z-50 scale-105 border-2 border-blue-400 bg-blue-50"
-            : "hover:scale-[1.02]"
+            ? "opacity-70 shadow-xl z-50 bg-blue-50 border-2 border-blue-300"
+            : ""
         }
+        ${isOverdue ? "border-l-3 border-l-red-400" : ""}
       `}
       onClick={handleClick}>
-      {/* Header avec titre */}
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="font-medium text-gray-900 text-xs leading-snug line-clamp-2 flex-1">
-          {task.title}
-        </h3>
-        <button
-          className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-600 transition-opacity p-1 rounded hover:bg-gray-100 flex-shrink-0"
-          onClick={(e) => {
-            e.stopPropagation();
-            console.log("Menu pour:", task.title);
-          }}>
-          <MoreHorizontal size={14} />
-        </button>
+      {/* Titre principal */}
+      <h3 className="font-medium text-gray-900 text-sm leading-snug mb-3 line-clamp-2">
+        {task.title}
+      </h3>
+
+      {/* Ligne inférieure avec date et assigné */}
+      <div className="flex items-center justify-between text-xs text-gray-500">
+        {/* Date */}
+        {dueDateText && (
+          <div
+            className={`flex items-center gap-1 ${
+              isOverdue ? "text-red-600 font-medium" : ""
+            }`}>
+            <Calendar
+              size={12}
+              className={isOverdue ? "text-red-500" : "text-gray-400"}
+            />
+            <span>{dueDateText}</span>
+          </div>
+        )}
+
+        {/* Assigné */}
+        {assigneeName && (
+          <div className="flex items-center gap-1">
+            <User size={12} className="text-gray-400" />
+            <span>{assigneeName}</span>
+          </div>
+        )}
       </div>
 
-      {/* Métadonnées */}
-      <div className="flex items-center justify-between mt-3">
-        <div className="flex items-center space-x-2">
-          {/* Checkbox */}
-          <div
-            className="w-3.5 h-3.5 border border-gray-300 rounded flex items-center justify-center transition-colors hover:border-gray-400 cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              console.log("Toggle checkbox for:", task.id);
-            }}>
-            <CheckSquare size={12} className="text-gray-600" />
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          {/* Icônes de métadonnées */}
-          {(task.attachments ?? 0) > 0 && (
-            <div className="flex items-center space-x-1 text-gray-400">
-              <Paperclip size={12} />
-            </div>
-          )}
-          {(task.comments ?? 0) > 0 && (
-            <div className="flex items-center space-x-1 text-gray-400">
-              <MessageSquare size={12} />
-            </div>
-          )}
-
-          {/* Point de priorité */}
-          <div
-            className={`w-2 h-2 ${getPriorityColor(
-              task.priority
-            )} rounded-full`}
-          />
-
-          {/* Avatar - CORRECTION: utiliser assigneeInitials au lieu de task.assignee */}
-          <div
-            className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full text-[10px] text-white flex items-center justify-center font-medium shadow-sm cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              console.log("Click avatar for:", task.assignee);
-            }}>
-            {assigneeInitials} {/* CORRECTION ICI */}
-          </div>
-        </div>
-      </div>
+      {/* Indicateur de statut discret */}
+      <div
+        className={`h-1 mt-2 rounded-full ${
+          task.status === "done" || task.status === "termine"
+            ? "bg-green-400"
+            : task.status === "doing" || task.status === "en-cours"
+            ? "bg-yellow-400"
+            : task.status === "todo" || task.status === "ouvert"
+            ? "bg-blue-400"
+            : "bg-gray-300"
+        }`}
+      />
     </div>
   );
 };

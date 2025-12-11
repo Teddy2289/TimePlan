@@ -1,6 +1,6 @@
 // src/services/taskService.ts
 import api from "./api";
-import type { ApiResponse, PaginatedResponse } from "../types/index";
+import type { ApiResponse, PaginatedResponse, User } from "../types/index";
 
 export interface Task {
   id: number;
@@ -215,6 +215,37 @@ class TaskService {
       return response.data.data;
     } catch (error) {
       console.error(`Error resetting task ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async getAssignableUsers(projectId: number): Promise<User[]> {
+    try {
+      const response = await api.get<ApiResponse<User[]>>(
+        `/tasks/project/${projectId}/assignable-users`
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error(
+        `Error fetching assignable users for project ${projectId}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  // Récupérer les membres de l'équipe pour un projet
+  async getTeamMembers(projectId: number): Promise<User[]> {
+    try {
+      const response = await api.get<ApiResponse<User[]>>(
+        `/tasks/project/${projectId}/team-members`
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error(
+        `Error fetching team members for project ${projectId}:`,
+        error
+      );
       throw error;
     }
   }

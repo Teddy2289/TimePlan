@@ -14,7 +14,11 @@ import {
 } from "lucide-react";
 import type { Task } from "../../types";
 
-const CalendarView: React.FC = () => {
+interface CalendarViewProps {
+  onOpenCreateModal?: (status?: string) => void;
+}
+
+const CalendarView: React.FC<CalendarViewProps> = ({ onOpenCreateModal }) => {
   const { tasks } = useDnd();
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -117,7 +121,7 @@ const CalendarView: React.FC = () => {
       const date = new Date(year, month, day);
       const dayTasks = tasks.filter((task) => {
         try {
-          const taskDate = new Date(task.createdAt);
+          const taskDate = new Date(task.created_at);
           return (
             taskDate.getDate() === day &&
             taskDate.getMonth() === month &&
@@ -293,7 +297,7 @@ const CalendarView: React.FC = () => {
                         </div>
                         <div className="flex items-center justify-between mt-1">
                           <span className="text-[10px] text-gray-500">
-                            {task.assignee}
+                            {task.assignee?.name || "Non assigné"}
                           </span>
                           {task.priority === "urgente" && (
                             <span className="text-[8px] bg-red-500 text-white px-1 py-0.5 rounded">

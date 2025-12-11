@@ -15,59 +15,41 @@ export interface User {
 }
 
 export interface Project {
-  id: number; // Changé de string à number
-  team_id: number; // Changé de string à number
+  id: number;
+  team_id: number;
   team?: Team;
   name: string;
   description?: string;
-  start_date?: string; // Changé de Date à string pour la compatibilité API
-  end_date?: string; // Changé de Date à string pour la compatibilité API
+  start_date?: string;
+  end_date?: string;
   status: string;
-  created_at: string; // Changé de Date à string
-  updated_at: string; // Changé de Date à string
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Task {
-  id: number; // Changé de string à number
-  project_id: number; // Changé de string à number
+  id: number;
+  project_id: number;
   project?: Project;
   title: string;
   description?: string;
-  assigned_to?: number | null; // Changé de string à number | null
+  assigned_to?: number | null;
   assignee?: User;
-  status:
-    | "backlog"
-    | "todo"
-    | "doing"
-    | "done"
-    | "en-attente"
-    | "ouvert"
-    | "en-cours"
-    | "a-valider"
-    | "termine";
-  priority:
-    | "low"
-    | "medium"
-    | "high"
-    | "basse"
-    | "normale"
-    | "elevee"
-    | "urgente";
-  start_date?: string | null; // Changé de Date à string | null
-  due_date?: string | null; // Changé de Date à string | null
-  estimated_time?: number; // minutes
-  created_at: string; // Changé de Date à string
-  updated_at: string; // Changé de Date à string
-
-  // Propriétés existantes de votre modèle
+  status: "backlog" | "todo" | "doing" | "done";
+  priority: "low" | "medium" | "high";
+  start_date?: string | null;
+  due_date?: string | null;
+  estimated_time?: number;
+  created_at: string;
+  updated_at: string;
   tags: string[] | null;
-  subtasks?: Subtask[]; // Optionnel car pas dans la réponse API
-  comments?: number; // Optionnel
-  attachments?: number; // Optionnel
-  progress?: number; // Ajouté pour la compatibilité
-  is_overdue?: boolean; // Ajouté pour la compatibilité
-  total_worked_time?: number; // Ajouté pour la compatibilité
-  assigned_user?: User; // Ajouté pour la compatibilité API
+  subtasks?: Subtask[];
+  comments?: number;
+  attachments?: number;
+  progress?: number;
+  is_overdue?: boolean;
+  total_worked_time?: number;
+  assigned_user?: User;
 }
 
 export interface Subtask {
@@ -394,6 +376,8 @@ export interface ProjectTeam {
     updated_at: string;
     deleted_at: string | null;
   };
+  team_members?: User[];
+  tasks_count?: number;
 }
 
 export interface CreateProjectTeamRequest {

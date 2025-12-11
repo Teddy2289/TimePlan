@@ -5,7 +5,11 @@ import TaskDetailsModal from "./TaskDetailsModal";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Task } from "../../types";
 
-const GanttView: React.FC = () => {
+interface GrandViewProps {
+  onOpenCreateModal?: (status?: string) => void;
+}
+
+const GanttView: React.FC<GrandViewProps> = ({ onOpenCreateModal }) => {
   const { tasks } = useDnd();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [currentWeekOffset, setCurrentWeekOffset] = useState<number>(0);
@@ -90,7 +94,7 @@ const GanttView: React.FC = () => {
     try {
       const taskStart = task.start_date
         ? new Date(task.start_date)
-        : new Date(task.createdAt);
+        : new Date(task.created_at);
       const taskEnd = task.due_date
         ? new Date(task.due_date)
         : new Date(taskStart);

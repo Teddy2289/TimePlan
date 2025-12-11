@@ -19,7 +19,10 @@ import {
 } from "lucide-react";
 import type { Task } from "../../types";
 
-const ListView: React.FC = () => {
+interface ListViewProps {
+  onOpenCreateModal?: (status?: string) => void;
+}
+const ListView: React.FC<ListViewProps> = ({ onOpenCreateModal }) => {
   const { tasks, handleTaskClick, addTask, moveTask } = useDnd();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     {
@@ -55,18 +58,18 @@ const ListView: React.FC = () => {
   };
 
   const startEditing = (
-    taskId: string,
+    taskId: string | number,
     field: "priority" | "status",
     currentValue: string
   ) => {
-    setEditingTask(taskId);
+    setEditingTask(String(taskId));
     setEditForm({ [field]: currentValue });
   };
 
-  const saveEdit = (taskId: string, field: "priority" | "status") => {
+  const saveEdit = (taskId: string | number, field: "priority" | "status") => {
     if (editForm[field]) {
       if (field === "status") {
-        moveTask(taskId, editForm.status as any);
+        moveTask(Number(taskId), editForm.status as any);
       }
     }
     setEditingTask(null);
@@ -306,18 +309,18 @@ const ListView: React.FC = () => {
                             {/* Assigné */}
                             <div className="col-span-1">
                               <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full text-[8px] text-white flex items-center justify-center font-medium">
-                                {task.assignee}
+                                {task.assignee?.name?.[0] || "?"}
                               </div>
                             </div>
 
                             {/* Date d'échéance */}
                             <div className="col-span-2 text-gray-500">
-                              {task.createdAt.toLocaleDateString("fr-FR")}
+                              {task.created_at}
                             </div>
 
                             {/* Priorité - Éditable */}
                             <div className="col-span-1">
-                              {editingTask === task.id &&
+                              {editingTask === String(task.id) &&
                               editForm.priority !== undefined ? (
                                 <div className="flex items-center space-x-1">
                                   <select
@@ -367,9 +370,9 @@ const ListView: React.FC = () => {
                                     className={`inline-flex items-center px-2 py-1 rounded font-medium text-xs ${getPriorityColor(
                                       task.priority
                                     )}`}>
-                                    {task.priority === "elevee"
+                                    {task.priority === "medium"
                                       ? "élevée"
-                                      : task.priority === "urgente"
+                                      : task.priority === "high"
                                       ? "urgente"
                                       : "normale"}
                                   </span>
@@ -383,7 +386,7 @@ const ListView: React.FC = () => {
 
                             {/* Statut - Éditable */}
                             <div className="col-span-1">
-                              {editingTask === task.id &&
+                              {editingTask === String(task.id) &&
                               editForm.status !== undefined ? (
                                 <div className="flex items-center space-x-1">
                                   <select
@@ -434,13 +437,13 @@ const ListView: React.FC = () => {
                                     {getStatusIcon(task.status)}
                                     <span
                                       className={`text-xs ${taskStyles.text}`}>
-                                      {task.status === "en-cours"
+                                      {task.status === "todo"
                                         ? "en cours"
-                                        : task.status === "termine"
+                                        : task.status === "done"
                                         ? "terminé"
-                                        : task.status === "ouvert"
+                                        : task.status === "doing"
                                         ? "ouvert"
-                                        : task.status === "en-attente"
+                                        : task.status === "backlog"
                                         ? "en attente"
                                         : "à valider"}
                                     </span>

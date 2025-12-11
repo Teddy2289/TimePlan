@@ -1,14 +1,16 @@
-// ProjectDetail.tsx - version corrigée
+// src/pages/ProjectDetail.tsx - CORRIGÉ
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import MainLayout from "../components/layout/MainLayout";
 import MainView from "../components/tasks/MainView";
 import { useDnd } from "../context/DndContext";
 import HeaderFilterAction from "../components/layout/HeaderFilterAction";
-import { Loader2, AlertCircle } from "lucide-react";
-import type { ProjectTeam, Task, ApiTask } from "../types";
+import { Loader2 } from "lucide-react";
+import type { ProjectTeam, Task, ApiTask, User } from "../types";
 import projectsTeamsService from "../services/projectsTeamsService";
 import taskService from "../services/taskService";
+import CreateTaskModal from "../components/tasks/CreateTaskModal";
+import { useCreateTaskModal } from "../hooks/useCreateTaskModal";
 
 const ProjectDetail: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -16,18 +18,30 @@ const ProjectDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [tasksLoading, setTasksLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [projectUsers, setProjectUsers] = useState<User[]>([]);
 
   const { setTasks, tasks: contextTasks } = useDnd();
 
   useEffect(() => {
     const fetchData = async () => {
       const isNumericId = /^\d+$/.test(projectId || "");
-
-      if (isNumericId) {
-        await fetchProjectDetails();
-        await fetchTasks();
-      } else {
+      if (!isNumericId) {
         setError("Projet non trouvé");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        await Promise.all([
+          fetchProjectDetails(),
+          fetchTasks(),
+          fetchProjectUsers(),
+        ]);
+      } catch (err) {
+        console.error("Error fetching project data:", err);
+        setError("Impossible de charger les données du projet");
+      } finally {
         setLoading(false);
       }
     };
@@ -35,20 +49,57 @@ const ProjectDetail: React.FC = () => {
     fetchData();
   }, [projectId]);
 
-  const fetchProjectDetails = async () => {
+  const fetchProjectUsers = async () => {
+    if (!projectId || !/^\d+$/.test(projectId)) return;
+
     try {
-      setLoading(true);
-      setError(null);
-      const projectData = await projectsTeamsService.getProjectById(
-        parseInt(projectId!)
+      const users = await projectsTeamsService.getProjectTeamUsers(
+        parseInt(projectId)
       );
-      console.log("Fetched project data:", projectData);
+      setProjectUsers(users);
+    } catch (error) {
+      console.error("Error fetching project users:", error);
+      try {
+        const users = await taskService.getTeamMembers(parseInt(projectId));
+        setProjectUsers(users);
+      } catch (fallbackError) {
+        console.error("Fallback error:", fallbackError);
+      }
+    }
+  };
+
+  // Utiliser UN SEUL hook pour gérer le modal
+  const createTaskModalHook = useCreateTaskModal({
+    projectId: projectId ? parseInt(projectId) : 0,
+    projectName: project?.name,
+    availableUsers: projectUsers,
+    onTaskCreated: (newTask) => {
+      setTasks([...contextTasks, newTask]);
+    },
+  });
+
+  const fetchProjectDetails = async () => {
+    if (!projectId || !/^\d+$/.test(projectId)) return;
+
+    try {
+      const projectData = await projectsTeamsService.getProjectWithTeam(
+        parseInt(projectId)
+      );
       setProject(projectData);
+
+      if (projectData.team_members && projectData.team_members.length > 0) {
+        setProjectUsers(projectData.team_members);
+      }
     } catch (err) {
       console.error("Error fetching project:", err);
-      setError("Impossible de charger les détails du projet");
-    } finally {
-      setLoading(false);
+      try {
+        const projectData = await projectsTeamsService.getProjectById(
+          parseInt(projectId)
+        );
+        setProject(projectData);
+      } catch (fallbackError) {
+        setError("Impossible de charger les détails du projet");
+      }
     }
   };
 
@@ -58,11 +109,7 @@ const ProjectDetail: React.FC = () => {
     try {
       setTasksLoading(true);
       const tasks = await taskService.getProjectTasks(parseInt(projectId));
-      console.log("Tâches récupérées:", tasks);
-
-      // Correction: Créer un objet Task compatible
       const transformedTasks: Task[] = tasks.map((task: ApiTask) => {
-        // Créer un objet assignee simple avec seulement les propriétés nécessaires
         const assigneeData = task.assigned_user
           ? ({
               id: task.assigned_user.id,
@@ -73,7 +120,7 @@ const ProjectDetail: React.FC = () => {
           : undefined;
 
         return {
-          id: task.id, // Garder comme number
+          id: task.id,
           project_id: task.project_id,
           title: task.title,
           description: task.description || undefined,
@@ -93,14 +140,12 @@ const ProjectDetail: React.FC = () => {
           progress: task.progress,
           is_overdue: task.is_overdue,
           total_worked_time: task.total_worked_time,
-          // Pour compatibilité
           createdAt: new Date(task.created_at),
           updatedAt: new Date(task.updated_at),
         };
       });
 
       setTasks(transformedTasks);
-      console.log("Tâches transformées:", transformedTasks);
     } catch (error) {
       console.error("Erreur lors de la récupération des tâches:", error);
     } finally {
@@ -129,16 +174,43 @@ const ProjectDetail: React.FC = () => {
     return priorityMap[apiPriority] || (apiPriority as Task["priority"]);
   };
 
-  // ... reste du code inchangé
+  // Fonction pour ouvrir le modal
+  const handleOpenCreateModal = (status?: string) => {
+    createTaskModalHook.openModal(status);
+  };
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-full">
+          <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <p className="text-red-600">{error}</p>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
       <div className="flex flex-col h-full bg-gray-50">
-        <HeaderFilterAction projectName={project?.name || "Projet"} />
+        <HeaderFilterAction
+          projectName={project?.name || "Projet"}
+          onAddTask={() => handleOpenCreateModal()}
+        />
 
         <div className="flex-1 overflow-y-auto">
           <div className="p-6">
-            {/* En-tête */}
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-start space-x-4">
                 <div className="w-4 h-4 bg-blue-500 rounded-full mt-2"></div>
@@ -151,6 +223,7 @@ const ProjectDetail: React.FC = () => {
                   </p>
                   <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
                     <span>Tâches: {contextTasks.length}</span>
+                    <span>Membres: {projectUsers.length}</span>
                     {tasksLoading && (
                       <Loader2 className="animate-spin h-3 w-3 text-blue-600" />
                     )}
@@ -159,10 +232,12 @@ const ProjectDetail: React.FC = () => {
               </div>
             </div>
 
-            {/* Vue principale */}
-            <MainView />
+            {/* Passer la fonction d'ouverture du modal au MainView */}
+            <MainView onOpenCreateModal={handleOpenCreateModal} />
           </div>
         </div>
+        {/* UN SEUL MODAL pour la création de tâche */}
+        <CreateTaskModal {...createTaskModalHook.modalProps} />
       </div>
     </MainLayout>
   );

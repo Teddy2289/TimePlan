@@ -1,4 +1,4 @@
-// MainView.tsx - version améliorée
+// MainView.tsx - version corrigée
 import React from "react";
 import { useDnd } from "../../context/DndContext";
 import DndContainer from "./DndContainer";
@@ -9,9 +9,13 @@ import type { Task } from "../../types";
 
 interface MainViewProps {
   projectTasks?: Task[];
+  onOpenCreateModal?: (status?: string) => void; // Ajout de cette prop
 }
 
-const MainView: React.FC<MainViewProps> = ({ projectTasks = [] }) => {
+const MainView: React.FC<MainViewProps> = ({
+  projectTasks = [],
+  onOpenCreateModal,
+}) => {
   const { currentView, setTasks, tasks: contextTasks } = useDnd();
 
   // Synchroniser les tâches du projet avec le contexte si nécessaire
@@ -68,13 +72,13 @@ const MainView: React.FC<MainViewProps> = ({ projectTasks = [] }) => {
   const renderView = () => {
     switch (currentView) {
       case "tableau":
-        return <DndContainer />;
+        return <DndContainer onOpenCreateModal={onOpenCreateModal} />; // Passage de la prop
       case "list":
-        return <ListView />;
+        return <ListView onOpenCreateModal={onOpenCreateModal} />;
       case "calendar":
-        return <CalendarView />;
+        return <CalendarView onOpenCreateModal={onOpenCreateModal} />;
       case "gantt":
-        return <GanttView />;
+        return <GanttView onOpenCreateModal={onOpenCreateModal} />;
       default:
         return <div className="p-6 text-gray-500">Vue non trouvée</div>;
     }

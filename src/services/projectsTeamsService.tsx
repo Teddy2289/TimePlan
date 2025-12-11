@@ -4,6 +4,7 @@ import type {
   CreateProjectTeamRequest,
   UpdateProjectTeamRequest,
   PaginatedResponse,
+  User,
 } from "../types";
 import api from "./api";
 
@@ -159,6 +160,46 @@ class ProjectsTeamsService {
       month: "short",
       year: "numeric",
     });
+  }
+
+  async getProjectTeamUsers(projectId: string | number): Promise<User[]> {
+    try {
+      const response = await api.get(`/projectsTeams/${projectId}/team-users`);
+      return response.data.data;
+    } catch (error) {
+      console.error(
+        `Error fetching team users for project ${projectId}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  // Récupérer les utilisateurs assignables pour un projet
+  async getAssignableUsers(projectId: string | number): Promise<User[]> {
+    try {
+      const response = await api.get(
+        `/projectsTeams/${projectId}/assignable-users`
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error(
+        `Error fetching assignable users for project ${projectId}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  // Récupérer un projet avec les détails de l'équipe
+  async getProjectWithTeam(id: string | number): Promise<ProjectTeam> {
+    try {
+      const response = await api.get(`/projectsTeams/${id}/with-team`);
+      return response.data.data;
+    } catch (error) {
+      console.error(`Error fetching project ${id} with team details:`, error);
+      throw error;
+    }
   }
 }
 

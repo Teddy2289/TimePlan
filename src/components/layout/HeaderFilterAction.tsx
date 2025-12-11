@@ -15,6 +15,7 @@ import type { ViewType } from "../../types";
 
 interface HeaderFilterActionProps {
   projectName?: string;
+  onAddTask?: () => void;
 }
 const HeaderFilterAction: React.FC<HeaderFilterActionProps> = ({
   projectName,
