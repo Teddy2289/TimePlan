@@ -8,7 +8,6 @@ import {
   Grid,
   List,
   Calendar,
-  GanttChartIcon,
 } from "lucide-react";
 import { useDnd } from "../../context/DndContext";
 import type { ViewType } from "../../types";
@@ -26,7 +25,6 @@ const HeaderFilterAction: React.FC<HeaderFilterActionProps> = ({
     { id: "tableau", label: "Tableau", icon: <Grid size={14} /> },
     { id: "list", label: "Liste", icon: <List size={14} /> },
     { id: "calendar", label: "Calendrier", icon: <Calendar size={14} /> },
-    { id: "gantt", label: "Gantt", icon: <GanttChartIcon size={14} /> },
   ];
 
   return (

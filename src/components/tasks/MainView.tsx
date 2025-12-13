@@ -4,7 +4,6 @@ import { useDnd } from "../../context/DndContext";
 import DndContainer from "./DndContainer";
 import ListView from "./ListView";
 import CalendarView from "./CalendarView";
-import GanttView from "./GanttView";
 import type { Task } from "../../types";
 
 interface MainViewProps {
@@ -77,8 +76,7 @@ const MainView: React.FC<MainViewProps> = ({
         return <ListView onOpenCreateModal={onOpenCreateModal} />;
       case "calendar":
         return <CalendarView onOpenCreateModal={onOpenCreateModal} />;
-      case "gantt":
-        return <GanttView onOpenCreateModal={onOpenCreateModal} />;
+
       default:
         return <div className="p-6 text-gray-500">Vue non trouvée</div>;
     }
