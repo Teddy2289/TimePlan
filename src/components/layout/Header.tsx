@@ -51,7 +51,7 @@ const Header: React.FC = () => {
             className="flex items-center space-x-3 focus:outline-none">
             {user?.avatar_url ? (
               <img
-                src={user.avatar_url}
+                src={`${import.meta.env.VITE_API_BASE_URL_MEDIA}/${user.avatar}`}
                 alt={user.name}
                 className="w-8 h-8 rounded-full border-2 border-white"
               />
