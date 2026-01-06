@@ -11,14 +11,13 @@ const HomaPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <WelcomeHeader />
           <div className="mt-8 space-x-8 flex">
-  <div className="flex-1">
-    <RecentItems />
-  </div>
-  <div className="flex-1">
-    <Agenda />
-  </div>
-</div>
-
+            <div className="flex-1">
+              <RecentItems />
+            </div>
+            <div className="flex-1">
+              <Agenda />
+            </div>
+          </div>
         </div>
       </div>
     </MainLayout>
