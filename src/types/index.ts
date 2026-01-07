@@ -50,7 +50,21 @@ export interface Task {
     is_overdue?: boolean;
     total_worked_time?: number;
     assigned_user?: User;
+    statistics: {
+        time_logs_count: number;
+        comments_count: number;
+        files_count: number;
+        active_time_logs: number;
+    };
+    actions: {
+        can_edit: boolean;
+        can_delete: boolean;
+        can_assign: boolean;
+    };
 }
+
+export type TaskStatus = 'backlog' | 'todo' | 'doing' | 'done';
+export type TaskPriority = 'low' | 'medium' | 'high';
 
 export interface Subtask {
     id: string;
