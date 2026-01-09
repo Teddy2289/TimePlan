@@ -1,373 +1,438 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-primary: #31b6b8;
-  --color-secondary: #ab2283;
-  --color-accent: #e1af30;
-  --color-dark: #000000;
-  --color-info: #0880ea;
+    --color-primary: #31b6b8;
+    --color-secondary: #ab2283;
+    --color-accent: #e1af30;
+    --color-dark: #000000;
+    --color-info: #0880ea;
 
-  /* Couleurs supplémentaires pour compléter */
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
+    /* Couleurs supplémentaires pour compléter */
+    --color-gray-50: #f9fafb;
+    --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
+    --color-gray-400: #9ca3af;
+    --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1f2937;
+    --color-gray-900: #111827;
 
-  --color-red-500: #ef4444;
-  --color-white: #ffffff;
+    --color-red-500: #ef4444;
+    --color-white: #ffffff;
 }
 
 /* STYLES DE SCROLLBAR ÉLÉGANT */
 /* Pour Webkit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+    width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-gray-100);
-  border-radius: 4px;
+    background: var(--color-gray-100);
+    border-radius: 4px;
 }
 
 /* src/index.css */
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(1rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(1rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animation pour le zoom */
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-zoom-in {
+    animation: zoomIn 0.2s ease-out;
+}
+
+.animate-fade-in-down {
+    animation: fadeInDown 0.3s ease-out;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Dans votre fichier CSS global */
+.react-pdf__Page {
+    margin: 0 auto;
+}
+
+.react-pdf__Page__canvas {
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto !important;
+}
+
+.react-pdf__Page__textContent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    line-height: 1;
+}
+
+.react-pdf__Page__annotations {
+    display: none; /* Cacher les annotations si non nécessaire */
+}
+
+/* Style pour le spinner */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
 }
 
 .animate-fade-in-up {
-  animation: fade-in-up 0.3s ease-out;
+    animation: fade-in-up 0.3s ease-out;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  border-radius: 4px;
-  transition: background 0.2s ease;
+    background: var(--color-primary);
+    border-radius: 4px;
+    transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--color-primary) 80%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 80%, transparent);
 }
 
 ::-webkit-scrollbar-corner {
-  background: transparent;
+    background: transparent;
 }
 
 /* Pour Firefox */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) var(--color-gray-100);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) var(--color-gray-100);
 }
 
 /* Scrollbar plus fine pour certains éléments */
 .scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+    width: 6px;
+    height: 6px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: var(--color-gray-50);
+    background: var(--color-gray-50);
 }
 
 /* Scrollbar avec accent color */
 .scrollbar-accent::-webkit-scrollbar-thumb {
-  background: var(--color-accent);
+    background: var(--color-accent);
 }
 
 .scrollbar-accent::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--color-accent) 80%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 80%, transparent);
 }
 
 /* Scrollbar pour les éléments sombres */
 .scrollbar-dark::-webkit-scrollbar-track {
-  background: var(--color-gray-800);
+    background: var(--color-gray-800);
 }
 
 .scrollbar-dark::-webkit-scrollbar-thumb {
-  background: var(--color-gray-600);
+    background: var(--color-gray-600);
 }
 
 .scrollbar-dark::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gray-500);
+    background: var(--color-gray-500);
 }
 
 @layer components {
-  * {
-    margin: 0;
-    padding: 0;
-    font-family: "Montserrat", sans-serif;
-    font-optical-sizing: auto;
-    font-style: normal;
-    box-sizing: border-box;
-  }
-  /* src/styles/globals.css */
-
-  /* Animation pour les champs */
-  input:focus {
-    transition: all 0.2s ease;
-  }
-
-  /* Animation pour les boutons */
-  button {
-    transition: all 0.2s ease;
-  }
-
-  /* Effet de vague pour le gradient */
-  @keyframes wave {
-    0%,
-    100% {
-      background-position: 0% 50%;
+    * {
+        margin: 0;
+        padding: 0;
+        font-family: 'Montserrat', sans-serif;
+        font-optical-sizing: auto;
+        font-style: normal;
+        box-sizing: border-box;
     }
-    50% {
-      background-position: 100% 50%;
+    /* src/styles/globals.css */
+
+    /* Animation pour les champs */
+    input:focus {
+        transition: all 0.2s ease;
     }
-  }
 
-  .gradient-wave {
-    background-size: 200% 200%;
-    animation: wave 3s ease-in-out infinite;
-  }
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* Dans votre CSS global */
-  .drag-prevent-select {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  /* Pour les éléments interactifs à l'intérieur des cartes */
-  .drag-prevent-select button,
-  .drag-prevent-select div[role="button"] {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  .btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-
-  .btn-primary:hover {
-    background-color: color-mix(in srgb, var(--color-primary) 90%, transparent);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(49, 182, 184, 0.2);
-  }
-
-  .btn-primary:active {
-    transform: translateY(0);
-  }
-
-  .btn-secondary {
-    background-color: var(--color-secondary);
-    color: var(--color-white);
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-
-  .btn-secondary:hover {
-    background-color: color-mix(
-      in srgb,
-      var(--color-secondary) 90%,
-      transparent
-    );
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(171, 34, 131, 0.2);
-  }
-
-  .btn-secondary:active {
-    transform: translateY(0);
-  }
-
-  .sidebar-item {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    color: var(--color-gray-700);
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    gap: 0.75rem;
-    font-weight: 500;
-  }
-
-  .sidebar-item:hover {
-    background-color: var(--color-gray-100);
-    transform: translateX(2px);
-  }
-
-  .sidebar-item.active {
-    background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
-    color: var(--color-primary);
-    font-weight: 600;
-  }
-
-  .task-card {
-    background-color: var(--color-white);
-    border: 1px solid var(--color-gray-200);
-    border-radius: 0.75rem;
-    padding: 1.25rem;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
-      0 1px 2px -1px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .task-card:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-      0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-    border-color: var(--color-primary);
-  }
-
-  /* Effet de bordure animée pour task-card */
-  .task-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(
-      to bottom,
-      var(--color-primary),
-      var(--color-accent)
-    );
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .task-card:hover::before {
-    opacity: 1;
-  }
-
-  /* Classe utilitaire pour les conteneurs avec scroll */
-  .scroll-container {
-    overflow-y: auto;
-    padding-right: 4px;
-  }
-
-  .scroll-container::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .scroll-container::-webkit-scrollbar-thumb {
-    background: var(--color-gray-400);
-  }
-
-  .scroll-container::-webkit-scrollbar-thumb:hover {
-    background: var(--color-gray-500);
-  }
-
-  /* Animation pour les éléments */
-  .fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
+    /* Animation pour les boutons */
+    button {
+        transition: all 0.2s ease;
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+
+    /* Effet de vague pour le gradient */
+    @keyframes wave {
+        0%,
+        100% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
     }
-  }
 
-  /* Gradient text */
-  .gradient-text {
-    background: linear-gradient(
-      135deg,
-      var(--color-primary),
-      var(--color-secondary)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+    .gradient-wave {
+        background-size: 200% 200%;
+        animation: wave 3s ease-in-out infinite;
+    }
+    html {
+        scroll-behavior: smooth;
+    }
 
-  /* Badges */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1;
-  }
+    /* Dans votre CSS global */
+    .drag-prevent-select {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
 
-  .badge-primary {
-    background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
-    color: var(--color-primary);
-  }
+    /* Pour les éléments interactifs à l'intérieur des cartes */
+    .drag-prevent-select button,
+    .drag-prevent-select div[role='button'] {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
 
-  .badge-secondary {
-    background-color: color-mix(
-      in srgb,
-      var(--color-secondary) 10%,
-      transparent
-    );
-    color: var(--color-secondary);
-  }
+    .btn-primary {
+        background-color: var(--color-primary);
+        color: var(--color-white);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
 
-  .badge-accent {
-    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
-    color: var(--color-accent);
-  }
+    .btn-primary:hover {
+        background-color: color-mix(in srgb, var(--color-primary) 90%, transparent);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(49, 182, 184, 0.2);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+    .btn-secondary {
+        background-color: var(--color-secondary);
+        color: var(--color-white);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-secondary:hover {
+        background-color: color-mix(in srgb, var(--color-secondary) 90%, transparent);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(171, 34, 131, 0.2);
+    }
+
+    .btn-secondary:active {
+        transform: translateY(0);
+    }
+
+    .sidebar-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        color: var(--color-gray-700);
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        gap: 0.75rem;
+        font-weight: 500;
+    }
+
+    .sidebar-item:hover {
+        background-color: var(--color-gray-100);
+        transform: translateX(2px);
+    }
+
+    .sidebar-item.active {
+        background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        color: var(--color-primary);
+        font-weight: 600;
+    }
+
+    .task-card {
+        background-color: var(--color-white);
+        border: 1px solid var(--color-gray-200);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .task-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+        border-color: var(--color-primary);
+    }
+
+    /* Effet de bordure animée pour task-card */
+    .task-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, var(--color-primary), var(--color-accent));
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .task-card:hover::before {
+        opacity: 1;
+    }
+
+    /* Classe utilitaire pour les conteneurs avec scroll */
+    .scroll-container {
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    .scroll-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .scroll-container::-webkit-scrollbar-thumb {
+        background: var(--color-gray-400);
+    }
+
+    .scroll-container::-webkit-scrollbar-thumb:hover {
+        background: var(--color-gray-500);
+    }
+
+    /* Animation pour les éléments */
+    .fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Gradient text */
+    .gradient-text {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    /* Badges */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+
+    .badge-primary {
+        background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        color: var(--color-primary);
+    }
+
+    .badge-secondary {
+        background-color: color-mix(in srgb, var(--color-secondary) 10%, transparent);
+        color: var(--color-secondary);
+    }
+
+    .badge-accent {
+        background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+        color: var(--color-accent);
+    }
 }
 
 /* Styles spécifiques pour mobile */
 @media (max-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
+    ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
 
-  .task-card {
-    padding: 1rem;
-  }
+    .task-card {
+        padding: 1rem;
+    }
 
-  .btn-primary,
-  .btn-secondary {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-  }
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
 }
