@@ -52,11 +52,6 @@ const HeaderFilterAction: React.FC<HeaderFilterActionProps> = ({ projectName }) 
                             <span>Masquer</span>
                         </button>
 
-                        <button className="flex items-center space-x-2 px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors">
-                            <Settings2 size={16} className="opacity-70" />
-                            <span>Personnaliser</span>
-                        </button>
-
                         {/* Icônes d'actions */}
                         <div className="flex items-center space-x-2 ml-2 border-l border-gray-200 pl-4">
                             <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors hover:border-gray-300">
@@ -64,9 +59,6 @@ const HeaderFilterAction: React.FC<HeaderFilterActionProps> = ({ projectName }) 
                             </button>
                             <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors hover:border-gray-300">
                                 <HelpCircle size={18} className="opacity-70" />
-                            </button>
-                            <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors hover:border-gray-300">
-                                <Settings2 size={18} className="opacity-70" />
                             </button>
                         </div>
                     </div>

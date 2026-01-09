@@ -12,18 +12,25 @@ import {
     Zap,
     User,
     CheckSquare,
+    FileText,
+    MessageSquare,
+    Activity,
+    Filter,
+    Eye,
+    Download,
+    Trash2,
+    Upload,
+    MoreVertical,
+    Search,
 } from 'lucide-react';
 import taskService from '../../services/taskService';
 import taskCommentService from '../../services/taskCommentService';
 import taskFileService from '../../services/taskFileService';
 import projectsTeamsService from '../../services/projectsTeamsService';
 import Toast from '../ui/Toast';
-import { FieldDisplay } from './taskDetail/FieldDisplay';
 import { TaskFiles } from './taskDetail/TaskFiles';
 import { TaskComments } from './taskDetail/TaskComments';
 import { FilePreviewModal } from './taskDetail/FilePreviewModal';
-
-// Import des composants
 
 interface TaskDetailsModalProps {
     task: Task;
@@ -35,7 +42,12 @@ interface TaskDetailsModalProps {
 // Fonctions utilitaires
 const formatDate = (dateString?: string) => {
     if (!dateString) return 'Non défini';
-    return new Date(dateString).toLocaleDateString('fr-FR');
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    });
 };
 
 const formatDateForInput = (dateString?: string) => {
@@ -50,30 +62,56 @@ const formatTime = (mins?: number) => {
     return h > 0 ? `${h}h${m > 0 ? ` ${m}min` : ''}` : `${m}min`;
 };
 
-const getStatusDisplay = (status: string) => {
-    const map: any = {
-        backlog: 'En attente',
-        todo: 'Ouvert',
-        doing: 'En cours',
-        done: 'Terminé',
+const getStatusConfig = (status: string) => {
+    const config: Record<string, { text: string; color: string; icon: any }> = {
+        backlog: {
+            text: 'En attente',
+            color: 'text-gray-600',
+            icon: '⏳',
+        },
+        todo: {
+            text: 'Ouvert',
+            color: 'text-blue-600',
+            icon: '📝',
+        },
+        doing: {
+            text: 'En cours',
+            color: 'text-amber-600',
+            icon: '⚡',
+        },
+        done: {
+            text: 'Terminé',
+            color: 'text-emerald-600',
+            icon: '✅',
+        },
     };
-    return map[status] || status;
+    return config[status] || config.backlog;
 };
 
-const getStatusColor = (status: string) => {
-    const map: any = {
-        backlog: 'bg-gray-100 text-gray-800',
-        todo: 'bg-blue-100 text-blue-800',
-        doing: 'bg-yellow-100 text-yellow-800',
-        done: 'bg-green-100 text-green-800',
+const getPriorityConfig = (priority: string) => {
+    const config: Record<string, { text: string; color: string }> = {
+        low: {
+            text: 'Basse',
+            color: 'text-emerald-600',
+        },
+        medium: {
+            text: 'Normale',
+            color: 'text-blue-600',
+        },
+        high: {
+            text: 'Élevée',
+            color: 'text-rose-600',
+        },
     };
-    return map[status] || 'bg-gray-100';
+    return config[priority] || config.medium;
 };
 
-const getPriorityDisplay = (priority: string) => {
-    const map: any = { low: 'Basse', medium: 'Normale', high: 'Élevée' };
-    return map[priority] || priority;
-};
+// Type pour le toast
+interface ToastState {
+    show: boolean;
+    message: string;
+    type: 'success' | 'error' | 'info' | 'warning';
+}
 
 export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
     task,
@@ -99,20 +137,32 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
     const [previewModalOpen, setPreviewModalOpen] = useState(false);
 
     // État toast
-    const [toast, setToast] = useState({ show: false, message: '' });
+    const [toast, setToast] = useState<ToastState>({
+        show: false,
+        message: '',
+        type: 'info',
+    });
 
     // Initialisation
     useEffect(() => {
         if (isOpen && task.id) {
             setEditedTask(task);
+            setIsEditing(false);
             fetchTaskDetails();
             fetchAvailableUsers();
         }
     }, [isOpen, task.id]);
 
     // Fonctions utilitaires
-    const showToast = (message: string) => {
-        setToast({ show: true, message });
+    const showToast = (
+        message: string,
+        type: 'success' | 'error' | 'info' | 'warning' = 'info'
+    ) => {
+        setToast({ show: true, message, type });
+    };
+
+    const closeToast = () => {
+        setToast((prev) => ({ ...prev, show: false }));
     };
 
     const fetchTaskDetails = async () => {
@@ -124,8 +174,13 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             ]);
             setComments(commentsData);
             setFiles(filesData);
-        } catch (error) {
+            showToast('Données chargées avec succès', 'success');
+        } catch (error: any) {
             console.error('Erreur détails:', error);
+            showToast(
+                error.response?.data?.message || 'Erreur lors du chargement des détails',
+                'error'
+            );
         } finally {
             setLoading(false);
         }
@@ -137,15 +192,20 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                 const users = await projectsTeamsService.getAssignableUsers(task.project_id);
                 setAvailableUsers(users);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Erreur users:', error);
             setAvailableUsers([]);
+            showToast(
+                error.response?.data?.message || 'Erreur lors du chargement des utilisateurs',
+                'error'
+            );
         }
     };
 
     // Gestion des mises à jour
     const handleSaveChanges = async () => {
         try {
+            setLoading(true);
             const updates: any = {
                 title: editedTask.title,
                 description: editedTask.description,
@@ -158,13 +218,15 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                 assigned_to: editedTask.assigned_to,
             };
 
-            await taskService.updateTask(task.id, updates);
+            const response = await taskService.updateTask(task.id, updates);
             onUpdateTask(editedTask);
             setIsEditing(false);
-            showToast('Tâche mise à jour avec succès !');
-        } catch (error) {
+            showToast('Tâche mise à jour avec succès !', 'success');
+        } catch (error: any) {
             console.error('Erreur sauvegarde:', error);
-            showToast('Erreur lors de la sauvegarde');
+            showToast(error.response?.data?.message || 'Erreur lors de la sauvegarde', 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -187,6 +249,9 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                     ...prev,
                     tags: [...currentTags, tempTag.trim()],
                 }));
+                showToast('Tag ajouté', 'success');
+            } else {
+                showToast('Ce tag existe déjà', 'warning');
             }
             setTempTag('');
         }
@@ -197,6 +262,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             ...prev,
             tags: prev.tags ? prev.tags.filter((t) => t !== tagToRemove) : [],
         }));
+        showToast('Tag supprimé', 'info');
     };
 
     // Gestion des fichiers
@@ -215,11 +281,11 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                showToast('Téléchargement démarré');
+                showToast('Téléchargement démarré', 'success');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Erreur téléchargement:', error);
-            showToast('Erreur lors du téléchargement');
+            showToast(error.response?.data?.message || 'Erreur lors du téléchargement', 'error');
         }
     };
 
@@ -227,12 +293,15 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
         if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?')) return;
 
         try {
+            setLoading(true);
             await taskFileService.deleteFile(fileId);
             setFiles((prev) => prev.filter((f) => f.id !== fileId));
-            showToast('Fichier supprimé');
-        } catch (error) {
+            showToast('Fichier supprimé avec succès', 'success');
+        } catch (error: any) {
             console.error('Erreur suppression:', error);
-            showToast('Erreur lors de la suppression');
+            showToast(error.response?.data?.message || 'Erreur lors de la suppression', 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -241,99 +310,160 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
 
         try {
             setLoading(true);
-            for (const file of filesArray) {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('task_id', task.id.toString());
-                const uploadedFile = await taskFileService.uploadFiles(formData);
-                setFiles((prev) => [uploadedFile, ...prev]);
-            }
-            showToast(`${filesArray.length} fichier(s) ajouté(s)`);
-        } catch (error) {
+            const uploadedFiles = await taskFileService.uploadFiles(task.id, filesArray);
+            setFiles((prev) => [...uploadedFiles, ...prev]);
+            showToast(`${filesArray.length} fichier(s) ajouté(s) avec succès`, 'success');
+        } catch (error: any) {
             console.error('Erreur upload:', error);
-            showToast("Erreur lors de l'upload");
+            showToast(error.response?.data?.message || "Erreur lors de l'upload", 'error');
         } finally {
             setLoading(false);
         }
     };
 
     const handleAddComment = async (content: string) => {
-        const newComment = await taskCommentService.createComment({
-            task_id: task.id,
-            content,
-        });
-        setComments([newComment, ...comments]);
-        showToast('Commentaire ajouté');
+        try {
+            const newComment = await taskCommentService.createComment({
+                task_id: task.id,
+                content,
+            });
+            setComments([newComment, ...comments]);
+            showToast('Commentaire ajouté avec succès', 'success');
+        } catch (error: any) {
+            console.error('Erreur ajout commentaire:', error);
+            showToast(
+                error.response?.data?.message || "Erreur lors de l'ajout du commentaire",
+                'error'
+            );
+        }
     };
 
     if (!isOpen) return null;
 
+    const statusConfig = getStatusConfig(editedTask.status);
+    const priorityConfig = getPriorityConfig(editedTask.priority);
+
+    // Vérifier si la date est dépassée
+    const isOverdue = editedTask.due_date && new Date(editedTask.due_date) < new Date();
+    // Vérifier si la date est proche (dans les 3 jours)
+    const isDueSoon =
+        editedTask.due_date &&
+        new Date(editedTask.due_date) > new Date() &&
+        new Date(editedTask.due_date) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+
     return (
         <>
-            {/* Modal Principal */}
-            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            {/* Toast Global */}
+            {toast.show && (
                 <Toast
+                    type={toast.type}
                     message={toast.message}
-                    isVisible={toast.show}
-                    onClose={() => setToast({ ...toast, show: false })}
+                    onClose={closeToast}
+                    duration={3000}
                 />
+            )}
 
-                <div className="bg-white rounded-lg shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Principal */}
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+                <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[95vh] overflow-hidden flex flex-col border border-gray-200">
                     {/* Header */}
-                    <div className="flex items-center justify-between h-14 border-b border-gray-300 px-6 bg-white">
-                        <div className="flex items-center space-x-3">
-                            <span className="px-2 py-0.5 text-xs font-medium text-gray-500 border border-gray-300 rounded">
-                                Tâche #{task.id}
-                            </span>
-                            {isEditing ? (
-                                <input
-                                    type="text"
-                                    value={editedTask.title}
-                                    onChange={(e) => handleFieldChange('title', e.target.value)}
-                                    className="text-lg font-bold text-gray-900 border-b border-gray-300 focus:border-blue-500 outline-none px-1 bg-transparent"
-                                    placeholder="Titre de la tâche"
-                                />
-                            ) : (
-                                <span className="text-lg font-bold text-gray-900 truncate max-w-md">
-                                    {editedTask.title}
+                    <div className="flex items-center justify-between h-14 border-b border-gray-200 px-4 sm:px-6 bg-white">
+                        <div className="flex items-center gap-3 min-w-0">
+                            <div className="flex items-center gap-2">
+                                <span
+                                    className={`text-xs font-medium px-2 py-1 rounded ${
+                                        statusConfig.color
+                                    } border ${statusConfig.color.replace(
+                                        'text',
+                                        'border'
+                                    )}/20 bg-white`}
+                                >
+                                    {statusConfig.icon} {statusConfig.text}
                                 </span>
-                            )}
+                                <span className="hidden sm:inline text-xs text-gray-500 border border-gray-200 rounded px-2 py-1 bg-gray-50">
+                                    #{task.id}
+                                </span>
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={editedTask.title}
+                                        onChange={(e) => handleFieldChange('title', e.target.value)}
+                                        className="w-full text-base font-semibold text-gray-900 border-b border-gray-300 focus:border-blue-500 outline-none px-1 bg-transparent placeholder-gray-400"
+                                        placeholder="Titre de la tâche"
+                                        autoFocus
+                                    />
+                                ) : (
+                                    <h2 className="text-base font-semibold text-gray-900 truncate pr-2">
+                                        {editedTask.title}
+                                    </h2>
+                                )}
+                            </div>
                         </div>
-                        <div className="flex items-center space-x-2">
+
+                        <div className="flex items-center gap-2">
                             {isEditing ? (
-                                <button
-                                    onClick={handleSaveChanges}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
-                                >
-                                    <Save size={14} />
-                                    Sauvegarder
-                                </button>
+                                <>
+                                    <button
+                                        onClick={() => {
+                                            setIsEditing(false);
+                                            setEditedTask(task);
+                                            showToast('Modifications annulées', 'info');
+                                        }}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 text-gray-700 text-xs font-medium rounded hover:bg-gray-50 transition-colors"
+                                    >
+                                        <X size={12} />
+                                        Annuler
+                                    </button>
+                                    <button
+                                        onClick={handleSaveChanges}
+                                        disabled={loading}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <Save size={12} />
+                                        {loading ? '...' : 'Sauvegarder'}
+                                    </button>
+                                </>
                             ) : (
-                                <button
-                                    onClick={() => setIsEditing(true)}
-                                    className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 text-gray-700 text-xs font-medium rounded hover:bg-gray-50 transition-colors"
-                                >
-                                    <Edit2 size={14} />
-                                    Éditer
-                                </button>
+                                <>
+                                    <button
+                                        onClick={() => setIsEditing(true)}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 text-gray-700 text-xs font-medium rounded hover:bg-gray-50 transition-colors"
+                                    >
+                                        <Edit2 size={12} />
+                                        Éditer
+                                    </button>
+                                    <button
+                                        onClick={onClose}
+                                        className="p-1.5 hover:bg-gray-100 rounded text-gray-500 transition-colors"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </>
                             )}
-                            <button
-                                onClick={onClose}
-                                className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
                         </div>
                     </div>
 
                     {/* Corps */}
-                    <div className="flex flex-1 overflow-hidden">
+                    <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
                         {/* Colonne Gauche */}
-                        <div className="flex-1 overflow-y-auto p-6 lg:max-w-[calc(100%-384px)]">
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                             {/* Description */}
                             <div className="mb-6">
                                 <div className="flex justify-between items-center mb-2">
-                                    <h3 className="text-sm font-bold text-gray-900">Description</h3>
+                                    <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">
+                                        Description
+                                    </h3>
+                                    {!isEditing && !editedTask.description && (
+                                        <button
+                                            onClick={() => setIsEditing(true)}
+                                            className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                                        >
+                                            + Ajouter
+                                        </button>
+                                    )}
                                 </div>
                                 {isEditing ? (
                                     <textarea
@@ -341,137 +471,259 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                                         onChange={(e) =>
                                             handleFieldChange('description', e.target.value)
                                         }
-                                        className="w-full min-h-[100px] p-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none resize-y transition-colors"
-                                        placeholder="Ajouter une description..."
+                                        className="w-full min-h-[100px] p-3 text-sm text-gray-700 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y transition-colors bg-white"
+                                        placeholder="Décrivez cette tâche..."
                                     />
                                 ) : (
                                     <div
-                                        className={`p-4 rounded-lg border ${
+                                        className={`p-4 rounded border ${
                                             editedTask.description
                                                 ? 'bg-gray-50 border-gray-200'
-                                                : 'border-dashed border-gray-300'
+                                                : 'border-dashed border-gray-300 bg-gray-50/50'
                                         }`}
                                     >
                                         {editedTask.description ? (
-                                            <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                                            <pre className="font-sans text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">
                                                 {editedTask.description}
-                                            </p>
+                                            </pre>
                                         ) : (
-                                            <p className="text-sm text-gray-400 italic">
-                                                Aucune description fournie.
-                                            </p>
+                                            <div className="text-center py-4">
+                                                <FileText
+                                                    size={20}
+                                                    className="mx-auto text-gray-300 mb-1"
+                                                />
+                                                <p className="text-xs text-gray-400">
+                                                    Aucune description pour cette tâche
+                                                </p>
+                                            </div>
                                         )}
                                     </div>
                                 )}
                             </div>
 
                             {/* Grille de Propriétés */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
-                                <FieldDisplay
-                                    label="Statut"
-                                    icon={CheckSquare}
-                                    isEditing={isEditing}
-                                    isSelect={true}
-                                    isPill={true}
-                                    value={editedTask.status}
-                                    displayValue={getStatusDisplay(editedTask.status)}
-                                    color={getStatusColor(editedTask.status)}
-                                    options={[
-                                        { value: 'backlog', label: 'En attente' },
-                                        { value: 'todo', label: 'Ouvert' },
-                                        { value: 'doing', label: 'En cours' },
-                                        { value: 'done', label: 'Terminé' },
-                                    ]}
-                                    onChange={(val) => handleFieldChange('status', val)}
-                                />
+                            <div className="mb-6">
+                                <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide mb-3">
+                                    Propriétés
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {/* Statut */}
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-gray-500 block">
+                                            Statut
+                                        </label>
+                                        {isEditing ? (
+                                            <select
+                                                value={editedTask.status}
+                                                onChange={(e) =>
+                                                    handleFieldChange('status', e.target.value)
+                                                }
+                                                className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+                                            >
+                                                <option value="backlog">⏳ En attente</option>
+                                                <option value="todo">📝 Ouvert</option>
+                                                <option value="doing">⚡ En cours</option>
+                                                <option value="done">✅ Terminé</option>
+                                            </select>
+                                        ) : (
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <span
+                                                    className={`font-medium ${statusConfig.color}`}
+                                                >
+                                                    {statusConfig.text}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
 
-                                <FieldDisplay
-                                    label="Assigné à"
-                                    icon={User}
-                                    isEditing={isEditing}
-                                    isSelect={true}
-                                    value={
-                                        editedTask.assigned_to
-                                            ? editedTask.assigned_to.toString()
-                                            : ''
-                                    }
-                                    displayValue={editedTask.assignee?.name || 'Non assigné'}
-                                    options={[
-                                        { value: '', label: 'Non assigné' },
-                                        ...availableUsers.map((u) => ({
-                                            value: u.id.toString(),
-                                            label: u.name,
-                                        })),
-                                    ]}
-                                    onChange={handleAssigneeChange}
-                                />
+                                    {/* Assigné à */}
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-gray-500 block">
+                                            Assigné à
+                                        </label>
+                                        {isEditing ? (
+                                            <select
+                                                value={editedTask.assigned_to?.toString() || ''}
+                                                onChange={(e) =>
+                                                    handleAssigneeChange(e.target.value)
+                                                }
+                                                className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+                                            >
+                                                <option value="">Non assigné</option>
+                                                {availableUsers.map((user) => (
+                                                    <option key={user.id} value={user.id}>
+                                                        {user.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            <div className="flex items-center gap-2 text-sm">
+                                                {editedTask.assignee ? (
+                                                    <>
+                                                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-medium">
+                                                            {editedTask.assignee.name?.charAt(0) ||
+                                                                '?'}
+                                                        </div>
+                                                        <span className="text-gray-700">
+                                                            {editedTask.assignee.name}
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-gray-400 italic">
+                                                        Non assigné
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
 
-                                <FieldDisplay
-                                    label="Priorité"
-                                    icon={Zap}
-                                    isEditing={isEditing}
-                                    isSelect={true}
-                                    value={editedTask.priority}
-                                    displayValue={getPriorityDisplay(editedTask.priority)}
-                                    options={[
-                                        { value: 'low', label: 'Basse' },
-                                        { value: 'medium', label: 'Normale' },
-                                        { value: 'high', label: 'Élevée' },
-                                    ]}
-                                    onChange={(val) => handleFieldChange('priority', val)}
-                                />
+                                    {/* Priorité */}
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-gray-500 block">
+                                            Priorité
+                                        </label>
+                                        {isEditing ? (
+                                            <select
+                                                value={editedTask.priority}
+                                                onChange={(e) =>
+                                                    handleFieldChange('priority', e.target.value)
+                                                }
+                                                className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+                                            >
+                                                <option value="low">Basse</option>
+                                                <option value="medium">Normale</option>
+                                                <option value="high">Élevée</option>
+                                            </select>
+                                        ) : (
+                                            <span
+                                                className={`text-sm font-medium ${priorityConfig.color}`}
+                                            >
+                                                {priorityConfig.text}
+                                            </span>
+                                        )}
+                                    </div>
 
-                                <FieldDisplay
-                                    label="Estimation"
-                                    icon={Clock}
-                                    isEditing={isEditing}
-                                    isInput={true}
-                                    inputType="number"
-                                    value={editedTask.estimated_time}
-                                    displayValue={formatTime(editedTask.estimated_time)}
-                                    onChange={(val) => handleFieldChange('estimated_time', val)}
-                                />
+                                    {/* Estimation */}
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-gray-500 flex items-center gap-1">
+                                            <Clock size={10} />
+                                            Estimation
+                                        </label>
+                                        {isEditing ? (
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="number"
+                                                    value={editedTask.estimated_time || ''}
+                                                    onChange={(e) =>
+                                                        handleFieldChange(
+                                                            'estimated_time',
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white"
+                                                    placeholder="Minutes"
+                                                    min="0"
+                                                />
+                                                <span className="text-xs text-gray-500 whitespace-nowrap">
+                                                    min
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <span className="text-sm text-gray-700">
+                                                {formatTime(editedTask.estimated_time)}
+                                            </span>
+                                        )}
+                                    </div>
 
-                                <FieldDisplay
-                                    label="Date de début"
-                                    icon={Calendar}
-                                    isEditing={isEditing}
-                                    isDate={true}
-                                    value={formatDateForInput(editedTask.start_date ?? undefined)}
-                                    displayValue={formatDate(editedTask.start_date ?? undefined)}
-                                    onChange={(val) => handleFieldChange('start_date', val)}
-                                />
+                                    {/* Date de début */}
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-gray-500 flex items-center gap-1">
+                                            <Calendar size={10} />
+                                            Date de début
+                                        </label>
+                                        {isEditing ? (
+                                            <input
+                                                type="date"
+                                                value={formatDateForInput(
+                                                    editedTask.start_date ?? undefined
+                                                )}
+                                                onChange={(e) =>
+                                                    handleFieldChange('start_date', e.target.value)
+                                                }
+                                                className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white"
+                                            />
+                                        ) : (
+                                            <span className="text-sm text-gray-700">
+                                                {formatDate(editedTask.start_date ?? undefined)}
+                                            </span>
+                                        )}
+                                    </div>
 
-                                <FieldDisplay
-                                    label="Échéance"
-                                    icon={Calendar}
-                                    isEditing={isEditing}
-                                    isDate={true}
-                                    value={formatDateForInput(editedTask.due_date ?? undefined)}
-                                    displayValue={formatDate(editedTask.due_date ?? undefined)}
-                                    onChange={(val) => handleFieldChange('due_date', val)}
-                                />
+                                    {/* Échéance */}
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-gray-500 flex items-center gap-1">
+                                            <Calendar size={10} />
+                                            Échéance
+                                        </label>
+                                        {isEditing ? (
+                                            <input
+                                                type="date"
+                                                value={formatDateForInput(
+                                                    editedTask.due_date ?? undefined
+                                                )}
+                                                onChange={(e) =>
+                                                    handleFieldChange('due_date', e.target.value)
+                                                }
+                                                className={`w-full text-sm border rounded px-3 py-2 focus:ring-1 outline-none bg-white ${
+                                                    isOverdue
+                                                        ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500'
+                                                        : isDueSoon
+                                                        ? 'border-amber-300 focus:border-amber-500 focus:ring-amber-500'
+                                                        : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                                                }`}
+                                            />
+                                        ) : (
+                                            <span
+                                                className={`text-sm font-medium ${
+                                                    isOverdue
+                                                        ? 'text-rose-600'
+                                                        : isDueSoon
+                                                        ? 'text-amber-600'
+                                                        : 'text-gray-700'
+                                                }`}
+                                            >
+                                                {formatDate(editedTask.due_date ?? undefined)}
+                                                {isOverdue && ' ⚠️'}
+                                                {isDueSoon && ' ⏰'}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Tags */}
                             <div className="mb-6">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Tag size={14} className="text-gray-500" />
-                                    <span className="text-xs font-semibold uppercase text-gray-500">
-                                        Mots-clés / Tags
-                                    </span>
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">
+                                        Mots-clés
+                                    </h3>
+                                    {isEditing && (
+                                        <span className="text-xs text-gray-500">
+                                            Entrée pour ajouter
+                                        </span>
+                                    )}
                                 </div>
-                                <div className="flex flex-wrap gap-2 items-center">
+                                <div className="flex flex-wrap gap-1.5">
                                     {editedTask.tags?.map((tag, index) => (
                                         <span
                                             key={index}
-                                            className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full animate-fade-in"
+                                            className="group flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded border border-blue-200 transition-all hover:bg-blue-100"
                                         >
-                                            {tag}
+                                            #{tag}
                                             {isEditing && (
                                                 <button
                                                     onClick={() => handleRemoveTag(tag)}
-                                                    className="hover:text-blue-900 transition-colors"
+                                                    className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-blue-900"
                                                 >
                                                     <X size={10} />
                                                 </button>
@@ -485,113 +737,184 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                                             value={tempTag}
                                             onChange={(e) => setTempTag(e.target.value)}
                                             onKeyDown={handleAddTag}
-                                            placeholder="+ Ajouter (Entrée)"
-                                            className="text-xs px-2 py-1 border border-dashed border-gray-300 rounded-full focus:outline-none focus:border-blue-400 min-w-[100px] bg-transparent"
+                                            placeholder="Ajouter un tag..."
+                                            className="text-xs px-2.5 py-1 border border-dashed border-gray-300 rounded focus:outline-none focus:border-blue-400 min-w-[100px] bg-white placeholder-gray-400"
                                         />
                                     ) : (
                                         (!editedTask.tags || editedTask.tags.length === 0) && (
-                                            <span className="text-xs text-gray-400 italic">
-                                                Aucun tag
-                                            </span>
+                                            <div className="text-center w-full py-2">
+                                                <p className="text-xs text-gray-400">
+                                                    Aucun mot-clé défini
+                                                </p>
+                                            </div>
                                         )
                                     )}
                                 </div>
                             </div>
 
                             {/* Onglets */}
-                            <div className="border-b mb-6 border-gray-300">
-                                <nav className="flex space-x-6 -mb-px">
-                                    {[
-                                        'Détails',
-                                        `Fichiers (${files.length})`,
-                                        `Commentaires (${comments.length})`,
-                                    ].map((tab) => {
-                                        const tabName = tab.split(' ')[0];
-                                        return (
+                            <div className="mb-6">
+                                <div className="border-b border-gray-200">
+                                    <nav className="flex space-x-4 -mb-px">
+                                        {[
+                                            {
+                                                name: 'Détails',
+                                                icon: <FileText size={12} />,
+                                                count: null,
+                                            },
+                                            {
+                                                name: 'Fichiers',
+                                                icon: <FileText size={12} />,
+                                                count: files.length,
+                                            },
+                                            {
+                                                name: 'Commentaires',
+                                                icon: <MessageSquare size={12} />,
+                                                count: comments.length,
+                                            },
+                                        ].map((tab) => (
                                             <button
-                                                key={tabName}
-                                                onClick={() => setActiveTab(tabName)}
-                                                className={`py-2 px-1 text-xs font-medium border-b-2 transition-colors ${
-                                                    activeTab === tabName
+                                                key={tab.name}
+                                                onClick={() => setActiveTab(tab.name)}
+                                                className={`flex items-center gap-1.5 py-2 text-xs font-medium border-b-2 transition-colors ${
+                                                    activeTab === tab.name
                                                         ? 'border-blue-600 text-blue-600'
                                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                                 }`}
                                             >
-                                                {tab}
+                                                {tab.icon}
+                                                {tab.name}
+                                                {tab.count !== null && (
+                                                    <span
+                                                        className={`px-1.5 py-0.5 text-xs rounded ${
+                                                            activeTab === tab.name
+                                                                ? 'bg-blue-600 text-white'
+                                                                : 'bg-gray-200 text-gray-600'
+                                                        }`}
+                                                    >
+                                                        {tab.count}
+                                                    </span>
+                                                )}
                                             </button>
-                                        );
-                                    })}
-                                </nav>
-                            </div>
+                                        ))}
+                                    </nav>
+                                </div>
 
-                            {/* Contenu Onglets */}
-                            <div className="space-y-6">
-                                {activeTab === 'Détails' && (
-                                    <div className="text-sm text-gray-500 italic">
-                                        Visualisez l'historique dans la colonne de droite.
-                                    </div>
-                                )}
+                                {/* Contenu Onglets */}
+                                <div className="mt-4">
+                                    {activeTab === 'Détails' && (
+                                        <div className="p-4 bg-gray-50 rounded border border-gray-200">
+                                            <p className="text-xs text-gray-500">
+                                                Les modifications sont sauvegardées automatiquement.
+                                                Utilisez les propriétés ci-dessus pour configurer
+                                                cette tâche.
+                                            </p>
+                                        </div>
+                                    )}
 
-                                {activeTab === 'Fichiers' && (
-                                    <TaskFiles
-                                        files={files}
-                                        loading={loading}
-                                        onUpload={handleFileUpload}
-                                        onPreview={handleFilePreview}
-                                        onDownload={handleDownloadFile}
-                                        onDelete={handleDeleteFile}
-                                    />
-                                )}
+                                    {activeTab === 'Fichiers' && (
+                                        <TaskFiles
+                                            files={files}
+                                            loading={loading}
+                                            onUpload={handleFileUpload}
+                                            onPreview={handleFilePreview}
+                                            onDownload={handleDownloadFile}
+                                            onDelete={handleDeleteFile}
+                                        />
+                                    )}
 
-                                {activeTab === 'Commentaires' && (
-                                    <TaskComments
-                                        comments={comments}
-                                        onAddComment={handleAddComment}
-                                    />
-                                )}
+                                    {activeTab === 'Commentaires' && (
+                                        <TaskComments
+                                            comments={comments}
+                                            onAddComment={handleAddComment}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         </div>
 
                         {/* Colonne Activité */}
-                        <div className="w-96 border-l flex flex-col bg-gray-50 border-gray-300">
-                            <div className="flex items-center justify-between p-4 border-b bg-white border-gray-300">
-                                <h3 className="text-lg font-semibold text-gray-900">Activité</h3>
+                        <div className="hidden lg:flex w-80 flex-col border-l border-gray-200 bg-gray-50">
+                            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+                                <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                                    <Activity size={14} className="text-gray-500" />
+                                    Activité
+                                </h3>
                                 <button
                                     onClick={() => setShowActivity(!showActivity)}
                                     className="text-gray-500 hover:bg-gray-100 p-1 rounded transition-colors"
                                 >
                                     {showActivity ? (
-                                        <ChevronUp size={16} />
+                                        <ChevronUp size={14} />
                                     ) : (
-                                        <ChevronDown size={16} />
+                                        <ChevronDown size={14} />
                                     )}
                                 </button>
                             </div>
 
                             {showActivity && (
-                                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                                    <div className="text-xs text-gray-500">
-                                        <span className="font-semibold text-gray-900">Système</span>{' '}
-                                        a créé la tâche le {formatDate(task.created_at)}
+                                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                                    <div className="text-xs p-3 bg-white rounded border border-gray-200">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs">
+                                                🤖
+                                            </div>
+                                            <span className="font-medium text-gray-900">
+                                                Système
+                                            </span>
+                                        </div>
+                                        <p className="text-gray-600">
+                                            Tâche créée le {formatDate(task.created_at)}
+                                        </p>
                                     </div>
-                                    {comments.map((c) => (
+
+                                    {comments.slice(0, 10).map((comment) => (
                                         <div
-                                            key={c.id}
-                                            className="text-xs border-l-2 border-blue-200 pl-2"
+                                            key={comment.id}
+                                            className="text-xs p-3 bg-white rounded border border-gray-200"
                                         >
-                                            <span className="font-semibold">{c.user?.name}</span> a
-                                            commenté le{' '}
-                                            {new Date(c.created_at).toLocaleDateString('fr-FR')}.
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs">
+                                                    {comment.user?.name?.charAt(0) || 'U'}
+                                                </div>
+                                                <span className="font-medium text-gray-900">
+                                                    {comment.user?.name}
+                                                </span>
+                                            </div>
+                                            <p className="text-gray-600">
+                                                Commenté le{' '}
+                                                {new Date(comment.created_at).toLocaleDateString(
+                                                    'fr-FR'
+                                                )}
+                                            </p>
+                                            <p className="text-gray-700 mt-1 line-clamp-2">
+                                                "{comment.content}"
+                                            </p>
                                         </div>
                                     ))}
-                                    {files.map((f) => (
+
+                                    {files.slice(0, 10).map((file) => (
                                         <div
-                                            key={f.id}
-                                            className="text-xs border-l-2 border-green-200 pl-2"
+                                            key={file.id}
+                                            className="text-xs p-3 bg-white rounded border border-gray-200"
                                         >
-                                            <span className="font-semibold">Système</span> a ajouté
-                                            le fichier "{f.file_name}" le{' '}
-                                            {new Date(f.created_at).toLocaleDateString('fr-FR')}.
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs">
+                                                    📎
+                                                </div>
+                                                <span className="font-medium text-gray-900">
+                                                    Système
+                                                </span>
+                                            </div>
+                                            <p className="text-gray-600">
+                                                Fichier ajouté le{' '}
+                                                {new Date(file.created_at).toLocaleDateString(
+                                                    'fr-FR'
+                                                )}
+                                            </p>
+                                            <p className="text-gray-700 truncate">
+                                                {file.file_name}
+                                            </p>
                                         </div>
                                     ))}
                                 </div>

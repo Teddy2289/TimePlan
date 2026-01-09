@@ -282,50 +282,16 @@ const FloatingTimer: React.FC = () => {
 
                             {/* Carte principale */}
                             <div className="relative bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-3xl">
-                                <div className="px-4 py-3">
+                                <div className="px-2 py-2">
                                     <div className="flex items-center justify-between gap-3">
                                         {/* Avatar utilisateur */}
                                         <div className="flex items-center gap-2">
                                             <div
                                                 className={`relative ${statusColor.bg} rounded-full p-2 ring-2 ${statusColor.ring}`}
-                                            >
-                                                {user?.avatar ? (
-                                                    <img
-                                                        src={`${
-                                                            import.meta.env.VITE_API_BASE_URL_MEDIA
-                                                        }/${user.avatar}`}
-                                                        alt={user.name || 'User'}
-                                                        className="w-8 h-8 rounded-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center">
-                                                        <span className="text-sm font-bold text-gray-800">
-                                                            {getUserInitials()}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                                {/* Point de statut */}
-                                                <div
-                                                    className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
-                                                        currentStatus?.current_status ===
-                                                        'in_progress'
-                                                            ? 'bg-emerald-500'
-                                                            : currentStatus?.current_status ===
-                                                              'paused'
-                                                            ? 'bg-amber-500'
-                                                            : currentStatus?.current_status ===
-                                                              'completed'
-                                                            ? 'bg-blue-500'
-                                                            : 'bg-gray-400'
-                                                    }`}
-                                                ></div>
-                                            </div>
+                                            ></div>
 
                                             {/* Informations utilisateur */}
                                             <div className="min-w-0">
-                                                <div className="text-sm font-semibold text-gray-900 truncate max-w-[120px]">
-                                                    {user?.name || 'Utilisateur'}
-                                                </div>
                                                 <div className="text-xs text-gray-500">
                                                     {currentStatus?.current_status === 'in_progress'
                                                         ? 'En cours'
@@ -352,16 +318,6 @@ const FloatingTimer: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* Barre de progression */}
-                                    {currentStatus?.current_status === 'in_progress' && (
-                                        <div className="mt-3 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                                            <div
-                                                className="bg-gradient-to-r from-emerald-500 to-green-500 h-full rounded-full transition-all duration-300"
-                                                style={{ width: `${calculateProgress()}%` }}
-                                            ></div>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         </div>
@@ -586,7 +542,7 @@ const FloatingTimer: React.FC = () => {
             </div>
 
             {/* Animation CSS pour scale-in */}
-            <style jsx>{`
+            <style>{`
                 @keyframes scale-in {
                     from {
                         opacity: 0;
