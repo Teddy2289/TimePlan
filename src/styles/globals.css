@@ -116,6 +116,52 @@
     display: none; /* Cacher les annotations si non nécessaire */
 }
 
+/* Animations supplémentaires */
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes scale-in-up {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-scale-in-up {
+    animation: scale-in-up 0.3s ease-out;
+}
+
+/* Effet de vague */
+.wave-effect {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    background-size: 200% 100%;
+    animation: wave 3s infinite;
+}
+
+@keyframes wave {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
 /* Style pour le spinner */
 @keyframes spin {
     from {

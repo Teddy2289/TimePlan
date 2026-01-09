@@ -8,6 +8,7 @@ import React, {
     type ReactNode,
     useCallback,
 } from 'react';
+import { useAuth } from './AuthContext'; // IMPORTANT: Ajoutez cet import
 import workTimeService from '../services/workTimeService';
 import type { WorkTime, WorkTimeStatus } from '../types';
 
@@ -23,6 +24,7 @@ interface WorkTimeContextType {
     resumeWork: () => Promise<void>;
     endDay: () => Promise<void>;
     refreshStatus: () => Promise<void>;
+    resetWorkTime: () => void; // Nouvelle fonction
 }
 
 const WorkTimeContext = createContext<WorkTimeContextType | undefined>(undefined);
@@ -40,6 +42,7 @@ interface WorkTimeProviderProps {
 }
 
 export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) => {
+    const { user, isAuthenticated } = useAuth(); // Récupérez l'utilisateur actuel
     const [currentStatus, setCurrentStatus] = useState<WorkTimeStatus | null>(null);
     const [activeWorkTime, setActiveWorkTime] = useState<WorkTime | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -48,24 +51,80 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
     const [isTimerRunning, setIsTimerRunning] = useState(false);
 
     // Références pour le timer
-    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const baseTimeRef = useRef<number>(0);
     const timerStartRef = useRef<number>(0);
     const isMountedRef = useRef(true);
+    const currentUserIdRef = useRef<number | null>(null);
 
-    // Clé pour le localStorage
-    const STORAGE_KEY = 'work_timer_state';
+    // Clé pour le localStorage avec ID utilisateur
+    const getStorageKey = useCallback(() => {
+        const userId = user?.id || 'anonymous';
+        return `work_timer_state_${userId}`;
+    }, [user?.id]);
+
+    // Nettoyer complètement l'état
+    const resetWorkTime = useCallback(() => {
+        console.log('Resetting work time state');
+
+        // Arrêter le timer
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
+
+        // Réinitialiser toutes les références
+        baseTimeRef.current = 0;
+        timerStartRef.current = 0;
+        setIsTimerRunning(false);
+
+        // Réinitialiser tous les états
+        setCurrentStatus(null);
+        setActiveWorkTime(null);
+        setElapsedTime(0);
+        setError(null);
+
+        // Nettoyer le localStorage pour l'ancien utilisateur
+        if (currentUserIdRef.current) {
+            const oldKey = `work_timer_state_${currentUserIdRef.current}`;
+            localStorage.removeItem(oldKey);
+        }
+
+        // Mettre à jour l'ID utilisateur actuel
+        currentUserIdRef.current = user?.id || null;
+    }, [user?.id]);
+
+    // Réinitialiser lorsque l'utilisateur change
+    useEffect(() => {
+        if (!isMountedRef.current) return;
+
+        const userId = user?.id || null;
+
+        // Si l'utilisateur a changé, réinitialiser
+        if (userId !== currentUserIdRef.current) {
+            console.log('User changed, resetting work time:', {
+                oldUser: currentUserIdRef.current,
+                newUser: userId,
+            });
+            resetWorkTime();
+        }
+
+        // Mettre à jour la référence de l'utilisateur actuel
+        currentUserIdRef.current = userId;
+    }, [user?.id, resetWorkTime]);
 
     // Sauvegarder l'état dans localStorage
     const saveTimerState = useCallback(
         (state: { baseTime: number; isRunning: boolean; savedAt: number; workTimeId?: number }) => {
+            if (!user?.id) return; // Ne pas sauvegarder si pas d'utilisateur
+
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                localStorage.setItem(getStorageKey(), JSON.stringify(state));
             } catch (error) {
                 console.error('Erreur sauvegarde localStorage:', error);
             }
         },
-        []
+        [user?.id, getStorageKey]
     );
 
     // Restaurer l'état depuis localStorage
@@ -75,31 +134,35 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
         savedAt: number;
         workTimeId?: number;
     } | null => {
+        if (!user?.id) return null; // Ne pas restaurer si pas d'utilisateur
+
         try {
-            const saved = localStorage.getItem(STORAGE_KEY);
+            const saved = localStorage.getItem(getStorageKey());
             if (!saved) return null;
 
             const state = JSON.parse(saved);
 
-            // Vérifier que l'état n'est pas trop vieux (max 24h)
+            // Vérifier que l'état n'est pas trop vieux (max 1h)
             const now = Date.now();
-            if (now - state.savedAt > 24 * 60 * 60 * 1000) {
-                localStorage.removeItem(STORAGE_KEY);
+            if (now - state.savedAt > 60 * 60 * 1000) {
+                localStorage.removeItem(getStorageKey());
                 return null;
             }
 
             return state;
         } catch (error) {
             console.error('Erreur restauration localStorage:', error);
-            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(getStorageKey());
             return null;
         }
-    }, []);
+    }, [user?.id, getStorageKey]);
 
     // Nettoyer localStorage
     const clearTimerState = useCallback(() => {
-        localStorage.removeItem(STORAGE_KEY);
-    }, []);
+        if (user?.id) {
+            localStorage.removeItem(getStorageKey());
+        }
+    }, [user?.id, getStorageKey]);
 
     // Nettoyer l'intervalle
     const clearTimerInterval = useCallback(() => {
@@ -162,7 +225,7 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
             setIsTimerRunning(false);
 
             // Sauvegarder l'état arrêté
-            if (activeWorkTime) {
+            if (activeWorkTime && user?.id) {
                 saveTimerState({
                     baseTime: baseTimeRef.current,
                     isRunning: false,
@@ -171,22 +234,34 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
                 });
             }
         },
-        [clearTimerInterval, activeWorkTime, saveTimerState]
+        [clearTimerInterval, activeWorkTime, saveTimerState, user?.id]
     );
 
     // Initialisation
     useEffect(() => {
         isMountedRef.current = true;
-        loadStatus();
+
+        // Charger le statut seulement si authentifié
+        if (isAuthenticated && user) {
+            loadStatus();
+        } else {
+            // Si non authentifié, reset tout
+            resetWorkTime();
+        }
 
         return () => {
             isMountedRef.current = false;
             clearTimerInterval();
         };
-    }, [clearTimerInterval]);
+    }, [isAuthenticated, user, clearTimerInterval, resetWorkTime]);
 
     // Charger le statut
     const loadStatus = async () => {
+        if (!isAuthenticated || !user) {
+            resetWorkTime();
+            return;
+        }
+
         try {
             setIsLoading(true);
             const status = await workTimeService.getStatus();
@@ -208,21 +283,25 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
                 }
 
                 console.log('État chargé depuis backend:', {
+                    userId: user?.id,
                     status: status.work_time.status,
                     time: backendTime,
                     isRunning: status.work_time.status === 'in_progress',
                 });
             } else {
                 // Pas de journée en cours
+                resetWorkTime();
                 clearTimerState();
-                baseTimeRef.current = 0;
-                setElapsedTime(0);
-                setIsTimerRunning(false);
-                clearTimerInterval();
             }
         } catch (err: any) {
-            setError(err.message || 'Erreur lors du chargement du statut');
             console.error('Erreur loadStatus:', err);
+
+            // Si erreur 401 (non autorisé), reset
+            if (err.response?.status === 401) {
+                resetWorkTime();
+            } else {
+                setError(err.message || 'Erreur lors du chargement du statut');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -230,6 +309,10 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
 
     // Démarrer la journée
     const startDay = async () => {
+        if (!isAuthenticated || !user) {
+            throw new Error('Utilisateur non authentifié');
+        }
+
         try {
             setIsLoading(true);
             const response = await workTimeService.startDay();
@@ -251,7 +334,7 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
             setElapsedTime(elapsedSeconds);
             startTimer(elapsedSeconds);
 
-            console.log('Journée démarrée:', elapsedSeconds, 'secondes');
+            console.log('Journée démarrée pour user', user.id, ':', elapsedSeconds, 'secondes');
         } catch (err: any) {
             const errorMessage =
                 err.response?.data?.message || 'Erreur lors du démarrage de la journée';
@@ -264,6 +347,10 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
 
     // Mettre en pause
     const pauseWork = async () => {
+        if (!isAuthenticated || !user) {
+            throw new Error('Utilisateur non authentifié');
+        }
+
         try {
             setIsLoading(true);
 
@@ -287,7 +374,7 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
                     : null
             );
 
-            console.log('Paused at:', currentTime, 'seconds');
+            console.log('Paused for user', user.id, 'at:', currentTime, 'seconds');
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || 'Erreur lors de la pause';
             setError(errorMessage);
@@ -302,6 +389,10 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
 
     // Reprendre
     const resumeWork = async () => {
+        if (!isAuthenticated || !user) {
+            throw new Error('Utilisateur non authentifié');
+        }
+
         try {
             setIsLoading(true);
             const response = await workTimeService.resume();
@@ -319,7 +410,7 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
             // Redémarrer le timer avec le temps actuel
             startTimer(baseTimeRef.current);
 
-            console.log('Reprise à:', baseTimeRef.current, 'secondes');
+            console.log('Reprise pour user', user.id, 'à:', baseTimeRef.current, 'secondes');
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || 'Erreur lors de la reprise';
             setError(errorMessage);
@@ -329,8 +420,12 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
         }
     };
 
-    // Terminer la journée - CORRECTION IMPORTANTE
+    // Terminer la journée
     const endDay = async () => {
+        if (!isAuthenticated || !user) {
+            throw new Error('Utilisateur non authentifié');
+        }
+
         try {
             setIsLoading(true);
 
@@ -354,19 +449,14 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
                     : null
             );
 
-            console.log('Journée terminée:', finalTime, 'secondes');
+            console.log('Journée terminée pour user', user.id, ':', finalTime, 'secondes');
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || 'Erreur lors de la fin de journée';
 
             // Si l'erreur est "Aucune journée en cours", on reset l'état local
             if (errorMessage.includes('Aucune journée en cours')) {
                 console.log("Reset de l'état local - journée déjà terminée");
-                setCurrentStatus(null);
-                setActiveWorkTime(null);
-                clearTimerState();
-                baseTimeRef.current = 0;
-                setElapsedTime(0);
-                setIsTimerRunning(false);
+                resetWorkTime();
             }
 
             setError(errorMessage);
@@ -392,6 +482,7 @@ export const WorkTimeProvider: React.FC<WorkTimeProviderProps> = ({ children }) 
         resumeWork,
         endDay,
         refreshStatus,
+        resetWorkTime, // Exportez la fonction
     };
 
     return <WorkTimeContext.Provider value={value}>{children}</WorkTimeContext.Provider>;

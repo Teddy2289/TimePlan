@@ -286,12 +286,12 @@ const Sidebar: React.FC = () => {
                     </div>
 
                     {/* Tout */}
-                    <div className="flex items-center space-x-3 py-1 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer transition-colors">
+                    {/* <div className="flex items-center space-x-3 py-1 px-3 text-gray-700 hover:bg-gray-50 rounded cursor-pointer transition-colors">
                         <div className="w-6 h-6 flex items-center justify-center">
                             <Globe size={14} className="text-gray-500" />
                         </div>
                         <span className="text-xs">Tout</span>
-                    </div>
+                    </div> */}
 
                     {/* Team Space - Accordéon */}
                     <div className="space-y-1">
@@ -436,53 +436,6 @@ const Sidebar: React.FC = () => {
                 >
                     <Plus size={16} className="text-blue-600" />
                     <span className="text-xs font-medium">Créer un espace</span>
-                </div>
-            </div>
-
-            {/* Section basse avec boutons */}
-            <div className="p-4 border-t border-gray-200 mt-auto">
-                <div className="flex space-x-2 mb-2">
-                    <button className="flex-1 py-2 px-3 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center">
-                        <Users size={14} className="mr-2" />
-                        <span>Inviter</span>
-                    </button>
-                    <button
-                        onClick={() => navigateTo('/profile')}
-                        className="flex-1 py-2 px-3 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors flex items-center justify-center"
-                    >
-                        <span>Profil</span>
-                    </button>
-                </div>
-
-                {/* Profile utilisateur */}
-                <div className="flex items-center space-x-3 pt-4 border-t border-gray-200">
-                    {user?.avatar_url ? (
-                        <img
-                            src={user.avatar_url}
-                            alt={user.name}
-                            className="w-8 h-8 rounded-full border-2 border-gray-200"
-                        />
-                    ) : (
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs font-medium">
-                                {user?.initials || 'JD'}
-                            </span>
-                        </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-gray-900 truncate">
-                            {user?.name || 'John Doe'}
-                        </p>
-                        <p className="text-xs text-gray-500 truncate">
-                            {user?.role_label || user?.role || 'Utilisateur'}
-                        </p>
-                    </div>
-                    <button
-                        onClick={handleLogout}
-                        className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded"
-                    >
-                        Décon.
-                    </button>
                 </div>
             </div>
 
